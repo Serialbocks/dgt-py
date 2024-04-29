@@ -1,16 +1,16 @@
 import sys, os, time
-import serial
+import serial # type: ignore
 
-import dgt_constants
+from dgt_constants import DgtConstants
 
 ser = None
 
 def main():
     ser = serial.Serial(port='COM7', baudrate=9600)
-    ser.write(bytes([dgt_constants.DGT_SEND_RESET]))
+    ser.write(bytes([DgtConstants.DGT_SEND_RESET]))
     
     while True:
-        ser.write(bytes([dgt_constants.DGT_SEND_BRD]))
+        ser.write(bytes([DgtConstants.DGT_SEND_BRD]))
         time.sleep(0.1)
         s = b''
         bytes_read = 0
