@@ -26,6 +26,28 @@ class Bitboard:
     # Large overlapping attack table indexed using magic multiplication.
     ATTACKS = [0] * 88772
 
+    def __init__(self):
+        for sq in range(64):
+            self.KNIGHT_ATTACKS[sq] = self.sliding_attacks(sq, self.ALL, self.KNIGHT_DELTAS)
+            self.KING_ATTACKS[sq] = self.sliding_attacks(sq, self.ALL, self.KING_DELTAS)
+            self.WHITE_PAWN_ATTACKS[sq] = self.sliding_attacks(sq, self.ALL, self.WHITE_PAWN_DELTAS)
+            self.BLACK_PAWN_ATTACKS[sq] = self.sliding_attacks(sq, self.ALL, self.BLACK_PAWN_DELTAS)
+
+            self.init_magics(sq, Magic.ROOK[sq], 12, self.ROOK_DELTAS)
+            self.init_magics(sq, Magic.BISHOP[sq], 9, self.BISHOP_DELTAS)
+
+            for a in range(64):
+                for b in range(64):
+                    if self.contains(self.sliding_attacks(a, 0, self.ROOK_DELTAS), b):
+                        self.BETWEEN[a][b] = self.sliding_attacks(a, 1 << b, self.ROOK_DELTAS) & self.sliding_attacks(b, 1 << a, self.ROOK_DELTAS)
+                        self.RAYS[a][b] = (1 << a) | (1 << b) | self.sliding_attacks(a, 0, self.ROOK_DELTAS) & self.sliding_attacks(b, 0, self.ROOK_DELTAS)
+                    elif self.contains(self.sliding_attacks(a, 0, self.BISHOP_DELTAS), b):
+                        self.BETWEEN[a][b] = self.sliding_attacks(a, 1 << b, self.BISHOP_DELTAS) & self.sliding_attacks(b, 1 << a, self.BISHOP_DELTAS)
+                        self.RAYS[a][b] = (1 << a) | (1 << b) | self.sliding_attacks(a, 0, self.BISHOP_DELTAS) & self.sliding_attacks(b, 0, self.BISHOP_DELTAS)
+    
+    def square_distance(a, b):
+        return max(abs(a // 8 - b // 8), abs(a % 8 - b % 8))
+
     # Slow attack set generation. Used only to bootstrap the attack tables.
     def sliding_attacks(square, occupied, deltas):
         attacks = 0
@@ -81,25 +103,6 @@ class Bitboard:
     def contains(b, sq):
         return (b & (1 << sq)) != 0
     
-    for sq in range(64):
-        KNIGHT_ATTACKS[sq] = sliding_attacks(sq, ALL, KNIGHT_DELTAS)
-        KING_ATTACKS[sq] = sliding_attacks(sq, ALL, KING_DELTAS)
-        WHITE_PAWN_ATTACKS[sq] = sliding_attacks(sq, ALL, WHITE_PAWN_DELTAS)
-        BLACK_PAWN_ATTACKS[sq] = sliding_attacks(sq, ALL, BLACK_PAWN_DELTAS)
-
-        init_magics(sq, Magic.ROOK[sq], 12, ROOK_DELTAS)
-        init_magics(sq, Magic.BISHOP[sq], 9, BISHOP_DELTAS)
-
-    for a in range(64):
-        for b in range(64):
-            if contains(sliding_attacks(a, 0, ROOK_DELTAS), b):
-                BETWEEN[a][b] = sliding_attacks(a, 1 << b, ROOK_DELTAS) & sliding_attacks(b, 1 << a, ROOK_DELTAS)
-                RAYS[a][b] = (1 << a) | (1 << b) | sliding_attacks(a, 0, ROOK_DELTAS) & sliding_attacks(b, 0, ROOK_DELTAS)
-            elif contains(sliding_attacks(a, 0, BISHOP_DELTAS), b):
-                BETWEEN[a][b] = sliding_attacks(a, 1 << b, BISHOP_DELTAS) & sliding_attacks(b, 1 << a, BISHOP_DELTAS)
-                RAYS[a][b] = (1 << a) | (1 << b) | sliding_attacks(a, 0, BISHOP_DELTAS) & sliding_attacks(b, 0, BISHOP_DELTAS)
-
-
     def square_set(b):
         set_ = set()
         while b != 0:
@@ -121,7 +124,3 @@ class Bitboard:
         x = ((x >> 16) & v2) | ((x & v2) << 16)
         x = (x >> 32)       | (x       << 32)
         return x
-
-    def square_distance(a, b):
-        return max(abs(a // 8 - b // 8), abs(a % 8 - b % 8))
-

@@ -7,6 +7,7 @@ class DgtProtocolException(Exception):
 class BoardDump:
     def __init__(self, data):
         if len(data) != 64:
+            print(data)
             raise DgtProtocolException("BoardDump expects exactly 64 bytes of data")
         
         self.board = Board.empty_board()
