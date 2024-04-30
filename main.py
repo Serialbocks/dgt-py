@@ -107,6 +107,7 @@ def main():
     legal_moves = legal_fens(board)
     fen_history = list()
     cls()
+    print_board(board)
     
     while True:
         ser.write(bytes([DgtConstants.DGT_SEND_BRD]))
@@ -120,22 +121,24 @@ def main():
 
         fen = dgt_message_to_fen(s)
         previous_fen = previous_fen_from_history(fen_history)
-        if fen == STARTING_FEN:
+        if fen == STARTING_FEN and previous_fen != '':
             board = chess.Board()
             legal_moves = legal_fens(board)
             fen_history = list()
+            print_board(board)
         elif previous_fen == fen:
             board.pop()
             fen_history.pop()
             legal_moves = legal_fens(board)
+            print_board(board)
         elif fen in legal_moves:
             move = legal_moves[fen]
             fen_history.append(fen_from_board(board))
             board.push_uci(move)
             legal_moves = legal_fens(board)
+            print_board(board)
 
-        print_board(board)
-        time.sleep(0.1)
+        
 
 if __name__ == '__main__':
     try:
