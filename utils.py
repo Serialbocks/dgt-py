@@ -3,6 +3,9 @@ import pyautogui # type: ignore
 
 from dgt_constants import DgtConstants
 
+from selenium.webdriver.common.by import By # type: ignore
+from selenium.common.exceptions import NoSuchElementException # type: ignore
+
 def move_cursor(y, x):
     print("\033[%d;%dH" % (y, x))
 
@@ -100,6 +103,43 @@ def request_board_state(ser):
 
 def board_reset(ser):
     ser.write(bytes([DgtConstants.DGT_SEND_RESET]))
+
+def get_piece_on_browser_square(driver, file, rank):
+    selector = '.piece.square-' + file + rank
+    try:
+        elem = driver.find_element(By.CSS_SELECTOR, selector)
+        pieceStr = elem.get_attribute('class')[6:8]
+        if(pieceStr[0] == 'w'):
+            return pieceStr[1].upper()
+        else:
+            return pieceStr[1]
+    except NoSuchElementException:
+        return ''
+
+def get_fen_from_browser(driver):
+    result = ''
+    coords = ['8', '7', '6', '5', '4', '3', '2', '1']
+    empty_count = 0
+
+    for rank in coords:
+        if empty_count > 0:
+            result += str(empty_count)
+        if rank != '8':
+            result += '/'
+        empty_count = 0
+        for file in reversed(coords):
+            piece = get_piece_on_browser_square(driver, file, rank)
+            if len(piece) == 0:
+                empty_count += 1
+            elif empty_count > 0:
+                result += str(empty_count)
+                empty_count = 0
+            result += piece
+
+    if empty_count > 0:
+        result += str(empty_count)
+
+    return result
 
 ranks_black = ['1', '2', '3', '4', '5', '6', '7', '8']
 files_white = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
