@@ -1,6 +1,8 @@
 
 import enum
 
+STARTING_FEN ='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
+
 class Role(enum.Enum):
     PAWN = 1
     KNIGHT = 2
