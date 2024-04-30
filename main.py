@@ -6,6 +6,8 @@ from dgt_constants import DgtConstants
 
 ser = None
 
+STARTING_FEN ='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
+
 def move_cursor(y, x):
     print("\033[%d;%dH" % (y, x))
 
@@ -118,7 +120,11 @@ def main():
 
         fen = dgt_message_to_fen(s)
         previous_fen = previous_fen_from_history(fen_history)
-        if previous_fen == fen:
+        if fen == STARTING_FEN:
+            board = chess.Board()
+            legal_moves = legal_fens(board)
+            fen_history = list()
+        elif previous_fen == fen:
             board.pop()
             fen_history.pop()
             legal_moves = legal_fens(board)
