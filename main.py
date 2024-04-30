@@ -6,8 +6,15 @@ from dgt_constants import DgtConstants
 
 ser = None
 
+def move_cursor(y, x):
+    print("\033[%d;%dH" % (y, x))
+
 def cls():
     os.system('cls' if os.name=='nt' else 'clear')
+
+def print_board(board):
+    move_cursor(0, 0)
+    print(board)
 
 def piece_byte_to_ascii(piece_byte):
     match piece_byte:
@@ -40,7 +47,7 @@ def piece_byte_to_ascii(piece_byte):
         case _:
             raise ValueError("Invalid piece detected")
 
-def board_message_to_fen(message):
+def dgt_message_to_fen(message):
     stripped_message = message[3:]
     if(len(stripped_message) != 64):
         raise ValueError("Invalid board state message")
@@ -64,12 +71,40 @@ def board_message_to_fen(message):
                 result += str(empty_count)
                 empty_count = 0
             result += piece
+
+    if empty_count > 0:
+        result += str(empty_count)
             
     return result
+
+def fen_from_board(board):
+    fen = board.fen()
+    return fen[:fen.find(' ')]
+
+def legal_fens(board):
+    legal_moves = list(board.legal_moves)
+    result = {}
+    for legal_move in legal_moves:
+        legal_move_uci = legal_move.uci()
+        board.push_uci(legal_move_uci)
+        fen = fen_from_board(board)
+        board.pop()
+        result[fen] = legal_move_uci
+    return result
+
+def previous_fen_from_history(fen_history):
+    history_len = len(fen_history)
+    if history_len > 0:
+        return fen_history[history_len-1]
+    return ''
 
 def main():
     ser = serial.Serial(port='COM7', baudrate=9600)
     ser.write(bytes([DgtConstants.DGT_SEND_RESET]))
+    board = chess.Board()
+    legal_moves = legal_fens(board)
+    fen_history = list()
+    cls()
     
     while True:
         ser.write(bytes([DgtConstants.DGT_SEND_BRD]))
@@ -81,9 +116,19 @@ def main():
             s += c
             bytes_read += 1
 
-        board = chess.Board(board_message_to_fen(s))
-        cls()
-        print(board)
+        fen = dgt_message_to_fen(s)
+        previous_fen = previous_fen_from_history(fen_history)
+        if previous_fen == fen:
+            board.pop()
+            fen_history.pop()
+            legal_moves = legal_fens(board)
+        elif fen in legal_moves:
+            move = legal_moves[fen]
+            fen_history.append(fen_from_board(board))
+            board.push_uci(move)
+            legal_moves = legal_fens(board)
+
+        print_board(board)
         time.sleep(0.1)
 
 if __name__ == '__main__':
