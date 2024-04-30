@@ -6,6 +6,9 @@ from dgt_constants import DgtConstants
 
 ser = None
 
+def cls():
+    os.system('cls' if os.name=='nt' else 'clear')
+
 def piece_byte_to_ascii(piece_byte):
     match piece_byte:
         case DgtConstants.EMPTY:
@@ -55,12 +58,12 @@ def board_message_to_fen(message):
             file = 7 - rev_file
             message_index = (rank * 8) + file
             piece = piece_byte_to_ascii(stripped_message[message_index])
-            result += piece
             if len(piece) == 0:
                 empty_count += 1
             elif empty_count > 0:
                 result += str(empty_count)
                 empty_count = 0
+            result += piece
             
     return result
 
@@ -78,7 +81,9 @@ def main():
             s += c
             bytes_read += 1
 
-        print(board_message_to_fen(s))
+        board = chess.Board(board_message_to_fen(s))
+        cls()
+        print(board)
         time.sleep(0.1)
 
 if __name__ == '__main__':
