@@ -1,4 +1,5 @@
 import os
+import pyautogui # type: ignore
 
 from dgt_constants import DgtConstants
 
@@ -93,3 +94,63 @@ def previous_fen_from_history(fen_history):
     if history_len > 0:
         return fen_history[history_len-1]
     return ''
+
+def request_board_state(ser):
+    ser.write(bytes([DgtConstants.DGT_SEND_BRD]))
+
+def board_reset(ser):
+    ser.write(bytes([DgtConstants.DGT_SEND_RESET]))
+
+ranks_black = ['1', '2', '3', '4', '5', '6', '7', '8']
+files_white = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+ranks_white = ranks_black[::-1]
+files_black = files_white[::-1]
+
+class AutoScreen:
+    def __init__(self):
+        self.top_left_x = 236
+        self.top_left_y = 187
+        self.board_width = 784
+        self.square_width = self.board_width / 8
+        self.half_square_width = self.square_width / 2
+        self.top_left_square_x = self.top_left_x + self.half_square_width
+        self.top_left_square_y = self.top_left_y + self.half_square_width
+        self.is_white = True
+
+    def __init__(self, color, screen_x, screen_y):
+        self.top_left_x = screen_x
+        self.top_left_y = screen_y
+        self.board_width = 784
+        self.square_width = self.board_width / 8
+        self.half_square_width = self.square_width / 2
+        self.top_left_square_x = self.top_left_x + self.half_square_width
+        self.top_left_square_y = self.top_left_y + self.half_square_width
+        self.is_white = (color == 'white')
+
+    def get_rank_coord(self, rank, is_white):
+        ranks = ranks_white
+        if not is_white:
+            ranks = ranks_black
+    
+        return self.top_left_square_y + (ranks.index(rank) * self.square_width)
+    
+    def get_file_coord(self, file, is_white):
+        files = files_white
+        if not is_white:
+            files = files_black
+    
+        return self.top_left_square_x + (files.index(file) * self.square_width)
+    
+    
+    def make_uci_move(self, move, is_white):
+        if len(move) != 4:
+            raise ValueError("invalid uci move")
+        
+        start_x = self.get_file_coord(move[0], is_white)
+        start_y = self.get_rank_coord(move[1], is_white)
+        end_x = self.get_file_coord(move[2], is_white)
+        end_y = self.get_rank_coord(move[3], is_white)
+        pyautogui.moveTo(start_x, start_y)
+        pyautogui.mouseDown(button='left')
+        pyautogui.moveTo(end_x, end_y, 0.3)
+        pyautogui.mouseUp(button='left')

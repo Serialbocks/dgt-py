@@ -1,17 +1,26 @@
 import argparse
-
 import sys, os, time
+import enum
 import serial # type: ignore
 import chess # type: ignore
 
 from utils import *
 from dgt_constants import *
 
+class GameState(enum.Enum):
+    PAWN = 1
+    KNIGHT = 2
+    BISHOP = 3
+    ROOK = 4
+    QUEEN = 5
+    KING = 6
+
 ser = None
 
 def default_argument_parser(for_name: str) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(for_name, description="Show game following chess rules from DGT board to console")
     parser.add_argument("--port", type=str, default="COM7", help="Name of serial port to connect to")
+    parser.add_argument("--color", type=str, default="white", help="Color of the player's pieces: 'white' or 'black'")
     return parser
 
 def main():

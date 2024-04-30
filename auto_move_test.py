@@ -1,59 +1,36 @@
-import time, os, sys
-import pyautogui # type: ignore
+import argparse
+import os, sys, time
+from utils import *
 
-def move_cursor(y, x):
-    print("\033[%d;%dH" % (y, x))
-
-def cls():
-    os.system('cls' if os.name=='nt' else 'clear')
-
-ranks_black = ['1', '2', '3', '4', '5', '6', '7', '8']
-files_white = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-ranks_white = ranks_black[::-1]
-files_black = files_white[::-1]
-
-top_left_x = 236
-top_left_y = 187
-board_width = 784
-square_width = board_width / 8
-half_square_width = square_width / 2
-
-top_left_square_x = top_left_x + half_square_width
-top_left_square_y = top_left_y + half_square_width
-
-is_white = True
-
-def get_rank_coord(rank):
-    ranks = ranks_white
-    if not is_white:
-        ranks = ranks_black
-
-    return top_left_square_y + (ranks.index(rank) * square_width)
-
-def get_file_coord(file):
-    files = files_white
-    if not is_white:
-        files = files_black
-
-    return top_left_square_x + (files.index(file) * square_width)
-
-
-def make_uci_move(move):
-    if len(move) != 4:
-        raise ValueError("invalid uci move")
-    
-    start_x = get_file_coord(move[0])
-    start_y = get_rank_coord(move[1])
-    end_x = get_file_coord(move[2])
-    end_y = get_rank_coord(move[3])
-    pyautogui.moveTo(start_x, start_y)
-    pyautogui.mouseDown(button='left')
-    pyautogui.moveTo(end_x, end_y, 0.3)
-    pyautogui.mouseUp(button='left')
+def default_argument_parser(for_name: str) -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(for_name, description="Show game following chess rules from DGT board to console")
+    parser.add_argument("--color", type=str, default="white", help="Color of the player's pieces: 'white' or 'black'")
+    parser.add_argument("--screen_x", type=int, default=236, help="Horizontal screen coordinate of top left of chess board")
+    parser.add_argument("--screen_y", type=int, default=187, help="Vertical screen coordinate of top left of chess board")
+    return parser
 
 def main():
-    make_uci_move('e2e4')
+    parser = default_argument_parser("dgtpgn")
+    args = parser.parse_args()
+    color = args.color
+    screen_x = args.screen_x
+    screen_y = args.screen_y
+    auto_screen = AutoScreen(color, screen_x, screen_y)
 
+    auto_screen.make_uci_move('e2e4', color)
+    time.sleep(1)
+    auto_screen.make_uci_move('e7e5', color)
+    time.sleep(1)
+    auto_screen.make_uci_move('d1h5', color)
+    time.sleep(1)
+    auto_screen.make_uci_move('b8c6', color)
+    time.sleep(1)
+    auto_screen.make_uci_move('f1c4', color)
+    time.sleep(1)
+    auto_screen.make_uci_move('g8f6', color)
+    time.sleep(1)
+    auto_screen.make_uci_move('h5f7', color)
+    time.sleep(1)
 
 if __name__ == '__main__':
     try:

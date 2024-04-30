@@ -1,3 +1,4 @@
 pyserial
 chess
 pyautogui
+autoit
