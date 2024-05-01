@@ -17,9 +17,7 @@ class GameState(enum.Enum):
     WAIT_PLAYER_UPDATE_OPPONENT = 3
 
 class Game():
-    def __init__(self, screen_x, screen_y, port, url, fullscreen, debug=False):
-        self.screen_x = screen_x
-        self.screen_y = screen_y
+    def __init__(self, port, url, fullscreen, debug=False):
         self.port = port
         self.debug = debug
         self.url = url
@@ -84,7 +82,6 @@ class Game():
             selector = ".square-81"
         e = self.driver.find_element(By.CSS_SELECTOR, selector)
         self.debug_print(e.location)
-        self.auto_screen = AutoScreen(e.location['x'] + self.screen_x, e.location['y'] + self.screen_y, e.size['width'])
 
         if self.is_white:
             self.state = GameState.PLAYER_TURN
@@ -99,7 +96,7 @@ class Game():
             move = self.legal_moves[fen]
             self.board.push_uci(move)
             self.legal_moves = legal_fens(self.board)
-            self.auto_screen.make_uci_move(move, self.is_white)
+            make_uci_move(self.driver, move, self.is_white)
             self.state = GameState.OPPONENT_TURN
             if(self.board.is_checkmate()):
                 self.state = GameState.PRE_GAME
@@ -139,8 +136,6 @@ game = None
 def default_argument_parser(for_name: str) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(for_name, description="Show game following chess rules from DGT board to console")
     parser.add_argument("--port", type=str, default="COM10", help="Name of serial port to connect to")
-    parser.add_argument("--screen_x", type=int, default=0, help="Horizontal screen offset")
-    parser.add_argument("--screen_y", type=int, default=0, help="Vertical screen offset")
     parser.add_argument("--url", type=str, default="https://www.chess.com/play/computer", help="Starting URL")
     parser.add_argument('--fullscreen', action=argparse.BooleanOptionalAction, help="Automatically set browser window to fullscreen")
     parser.add_argument('--debug', action=argparse.BooleanOptionalAction, help="Print debug text to console")
@@ -150,12 +145,10 @@ def main():
     parser = default_argument_parser("dgtpgn")
     args = parser.parse_args()
     port = args.port
-    screen_x = args.screen_x
-    screen_y = args.screen_y
     debug = args.debug
     url = args.url
     fullscreen = args.fullscreen
-    game = Game(screen_x, screen_y, port, url, fullscreen, debug)
+    game = Game(port, url, fullscreen, debug)
     
     previous_state = GameState.OPPONENT_TURN
     while True:
