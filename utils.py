@@ -5,6 +5,7 @@ from dgt_constants import DgtConstants
 
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver import ActionChains
 
 def move_cursor(y, x):
     print("\033[%d;%dH" % (y, x))
@@ -145,6 +146,54 @@ ranks_black = ['1', '2', '3', '4', '5', '6', '7', '8']
 files_white = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 ranks_white = ranks_black[::-1]
 files_black = files_white[::-1]
+
+def make_uci_move(driver, move, is_white):
+    if len(move) != 4 and len(move) != 5:
+        raise ValueError("invalid uci move")
+    
+    ranks = ranks_black
+    files = files_black
+    if is_white:
+        ranks = ranks_white
+        files = files_white
+
+    ranks = ranks[::-1]
+    
+    start_file_index = files.index(move[0])
+    start_rank_index = ranks.index(move[1])
+    end_file_index = files.index(move[2])
+    end_rank_index = ranks.index(move[3])
+
+    selector = ".square-" + str(start_file_index + 1) + str(start_rank_index + 1)
+    elem = driver.find_element(By.CSS_SELECTOR, selector)
+    
+    square_width = elem.size['width']
+    move_offset_x = (start_file_index - end_file_index) * square_width
+    move_offset_y = (start_rank_index - end_rank_index) * square_width
+    print(move_offset_x)
+    print(move_offset_y)
+
+    ac = ActionChains(driver)
+    ac.move_to_element(elem).click_and_hold().move_by_offset(move_offset_x, move_offset_y).release()
+
+    if(len(move) == 5):
+        move_val = 0
+        match move.lower()[4]:
+            case 'q':
+                pass
+            case 'n':
+                move_val += square_width
+            case 'r':
+                move_val += 2 * square_width
+                pass
+            case 'b':
+                move_val += 3 * square_width
+                pass
+            case _:
+                raise ValueError("invalid uci move")
+        ac = ac.move_by_offset(0, -move_val).click()
+
+    ac.perform()
 
 class AutoScreen:
     def __init__(self):
