@@ -1,8 +1,8 @@
 import argparse
 
 import sys, os, time
-import serial # type: ignore
-import chess # type: ignore
+import serial
+import chess
 
 from utils import *
 from dgt_constants import *

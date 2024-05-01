@@ -15,7 +15,7 @@ def main():
     color = args.color
     screen_x = args.screen_x
     screen_y = args.screen_y
-    auto_screen = AutoScreen(color, screen_x, screen_y)
+    auto_screen = AutoScreen(screen_x, screen_y)
 
     auto_screen.make_uci_move('e2e4', color)
     time.sleep(1)

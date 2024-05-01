@@ -1,10 +1,10 @@
 import os
-import pyautogui # type: ignore
+import pyautogui
 
 from dgt_constants import DgtConstants
 
-from selenium.webdriver.common.by import By # type: ignore
-from selenium.common.exceptions import NoSuchElementException # type: ignore
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 
 def move_cursor(y, x):
     print("\033[%d;%dH" % (y, x))
@@ -155,9 +155,8 @@ class AutoScreen:
         self.half_square_width = self.square_width / 2
         self.top_left_square_x = self.top_left_x + self.half_square_width
         self.top_left_square_y = self.top_left_y + self.half_square_width
-        self.is_white = True
 
-    def __init__(self, color, screen_x, screen_y):
+    def __init__(self, screen_x, screen_y):
         self.top_left_x = screen_x
         self.top_left_y = screen_y
         self.board_width = 784
@@ -165,7 +164,15 @@ class AutoScreen:
         self.half_square_width = self.square_width / 2
         self.top_left_square_x = self.top_left_x + self.half_square_width
         self.top_left_square_y = self.top_left_y + self.half_square_width
-        self.is_white = (color == 'white')
+
+    def __init__(self, screen_x, screen_y, square_width):
+        self.top_left_x = screen_x
+        self.top_left_y = screen_y
+        self.square_width = square_width
+        self.board_width = square_width * 8
+        self.half_square_width = self.square_width / 2
+        self.top_left_square_x = self.top_left_x + self.half_square_width
+        self.top_left_square_y = self.top_left_y + self.half_square_width
 
     def get_rank_coord(self, rank, is_white):
         ranks = ranks_white

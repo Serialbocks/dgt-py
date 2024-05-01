@@ -1,5 +1,5 @@
 import os, sys, time
-import ait # type: ignore
+import ait
 from utils import *
 
 def main():

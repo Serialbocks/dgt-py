@@ -1,6 +1,6 @@
 import sys, os, time
 
-from selenium import webdriver # type: ignore
+from selenium import webdriver
 from utils import *
 from dgt_constants import *
 
