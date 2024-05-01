@@ -152,13 +152,11 @@ def make_uci_move(driver, move, is_white):
         raise ValueError("invalid uci move")
     
     ranks = ranks_black
-    files = files_black
-    if is_white:
-        ranks = ranks_white
-        files = files_white
-
-    ranks = ranks[::-1]
+    files = files_white
     
+    diff_multiplier = 1
+    if not is_white:
+        diff_multiplier = -1
     start_file_index = files.index(move[0])
     start_rank_index = ranks.index(move[1])
     end_file_index = files.index(move[2])
@@ -168,10 +166,8 @@ def make_uci_move(driver, move, is_white):
     elem = driver.find_element(By.CSS_SELECTOR, selector)
     
     square_width = elem.size['width']
-    move_offset_x = (end_file_index - start_file_index) * square_width
-    move_offset_y = (start_rank_index - end_rank_index) * square_width
-    print(move_offset_x)
-    print(move_offset_y)
+    move_offset_x = (end_file_index - start_file_index) * square_width * diff_multiplier
+    move_offset_y = (start_rank_index - end_rank_index) * square_width * diff_multiplier
 
     ac = ActionChains(driver)
     ac.move_to_element(elem).click_and_hold().move_by_offset(move_offset_x, move_offset_y).release()

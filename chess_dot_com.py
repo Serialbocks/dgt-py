@@ -27,9 +27,7 @@ class Game():
     def init_game(self):
         self.board_reset_msg_sent = False
         self.serial = serial.Serial(port=self.port, baudrate=9600)
-        board_reset(self.serial)
-        self.board = chess.Board()
-        self.legal_moves = legal_fens(self.board)
+        self.reset_game()
         options = Options()
         options.add_experimental_option("excludeSwitches", ['enable-automation'])
         self.driver = webdriver.Chrome(options)
@@ -42,6 +40,12 @@ class Game():
             self.driver.fullscreen_window()
         body.send_keys(Keys.CONTROL + Keys.HOME)
 
+        self.state = GameState.PRE_GAME
+
+    def reset_game(self):
+        board_reset(self.serial)
+        self.board = chess.Board()
+        self.legal_moves = legal_fens(self.board)
         self.state = GameState.PRE_GAME
 
     def debug_print(self, text):
@@ -99,17 +103,18 @@ class Game():
             make_uci_move(self.driver, move, self.is_white)
             self.state = GameState.OPPONENT_TURN
             if(self.board.is_checkmate()):
-                self.state = GameState.PRE_GAME
+                self.reset_game()
 
     def state_opponent_turn(self):
         fen = get_fen_from_browser(self.driver)
+        self.debug_print(fen)
         if fen in self.legal_moves:
             move = self.legal_moves[fen]
             self.board.push_uci(move)
             self.legal_moves = legal_fens(self.board)
             self.state = GameState.WAIT_PLAYER_UPDATE_OPPONENT
             if(self.board.is_checkmate()):
-                self.state = GameState.PRE_GAME
+                self.reset_game()
         
     def state_wait_player_update_opponent(self):
         s = self.get_board_state()
