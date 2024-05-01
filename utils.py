@@ -190,7 +190,7 @@ class AutoScreen:
     
     
     def make_uci_move(self, move, is_white):
-        if len(move) != 4:
+        if len(move) != 4 and len(move) != 5:
             raise ValueError("invalid uci move")
         
         start_x = self.get_file_coord(move[0], is_white)
@@ -201,3 +201,24 @@ class AutoScreen:
         pyautogui.mouseDown(button='left')
         pyautogui.moveTo(end_x, end_y, 0.3)
         pyautogui.mouseUp(button='left')
+
+        if(len(move) != 5):
+            return
+        
+        move_val = 0
+        match move.lower()[4]:
+            case 'q':
+                pass
+            case 'n':
+                move_val += self.square_width
+            case 'r':
+                move_val += 2 * self.square_width
+                pass
+            case 'b':
+                move_val += 3 * self.square_width
+                pass
+            case _:
+                raise ValueError("invalid uci move")
+            
+        pyautogui.moveTo(end_x, end_y + move_val, 0.1)
+        pyautogui.leftClick()
