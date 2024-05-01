@@ -168,7 +168,7 @@ def make_uci_move(driver, move, is_white):
     elem = driver.find_element(By.CSS_SELECTOR, selector)
     
     square_width = elem.size['width']
-    move_offset_x = (start_file_index - end_file_index) * square_width
+    move_offset_x = (end_file_index - start_file_index) * square_width
     move_offset_y = (start_rank_index - end_rank_index) * square_width
     print(move_offset_x)
     print(move_offset_y)
