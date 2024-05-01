@@ -26,6 +26,7 @@ class Game():
         self.init_game()
 
     def init_game(self):
+        self.board_reset_msg_sent = False
         self.serial = serial.Serial(port=self.port, baudrate=9600)
         board_reset(self.serial)
         self.board = chess.Board()
@@ -66,7 +67,9 @@ class Game():
         s = self.get_board_state()
         fen = dgt_message_to_fen(s)
         if fen != STARTING_FEN:
-            self.debug_print('Waiting for board to be reset...')
+            if not self.board_reset_msg_sent:
+                self.board_reset_msg_sent = True
+                print('Waiting for board to be reset...')
             return
         self.is_white = True
         color_in = input("Enter color to begin (W/b): ")
@@ -150,10 +153,13 @@ def main():
     url = args.url
     game = Game(screen_x, screen_y, port, url, debug)
     
+    previous_state = GameState.OPPONENT_TURN
     while True:
         game.run()
         time.sleep(0.033) # ~30fps
-        game.debug_print(game.state)
+        if game.state != previous_state:
+            game.debug_print(game.state)
+            previous_state = game.state
 
 if __name__ == '__main__':
     try:
