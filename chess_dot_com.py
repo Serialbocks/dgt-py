@@ -17,12 +17,13 @@ class GameState(enum.Enum):
     WAIT_PLAYER_UPDATE_OPPONENT = 3
 
 class Game():
-    def __init__(self, screen_x, screen_y, port, url, debug=False):
+    def __init__(self, screen_x, screen_y, port, url, fullscreen, debug=False):
         self.screen_x = screen_x
         self.screen_y = screen_y
         self.port = port
         self.debug = debug
         self.url = url
+        self.fullscreen = fullscreen
         self.init_game()
 
     def init_game(self):
@@ -39,7 +40,8 @@ class Game():
         # maximize to full screen and check for board
         self.driver.maximize_window()
         body = self.driver.find_element(By.CSS_SELECTOR, "body")
-        self.driver.fullscreen_window()
+        if self.fullscreen:
+            self.driver.fullscreen_window()
         body.send_keys(Keys.CONTROL + Keys.HOME)
 
         self.state = GameState.PRE_GAME
@@ -140,6 +142,7 @@ def default_argument_parser(for_name: str) -> argparse.ArgumentParser:
     parser.add_argument("--screen_x", type=int, default=0, help="Horizontal screen offset")
     parser.add_argument("--screen_y", type=int, default=0, help="Vertical screen offset")
     parser.add_argument("--url", type=str, default="https://www.chess.com/play/computer", help="Starting URL")
+    parser.add_argument('--fullscreen', action=argparse.BooleanOptionalAction, help="Automatically set browser window to fullscreen")
     parser.add_argument('--debug', action=argparse.BooleanOptionalAction, help="Print debug text to console")
     return parser
 
@@ -151,7 +154,8 @@ def main():
     screen_y = args.screen_y
     debug = args.debug
     url = args.url
-    game = Game(screen_x, screen_y, port, url, debug)
+    fullscreen = args.fullscreen
+    game = Game(screen_x, screen_y, port, url, fullscreen, debug)
     
     previous_state = GameState.OPPONENT_TURN
     while True:
