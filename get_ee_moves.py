@@ -113,7 +113,7 @@ def save_game(events, folder, game_index, start_move_index):
                 move_index += 1
                 continue
 
-            square = chess.square(event.file, event.rank)
+            square = chess.square(7 - event.file, event.rank)
             match(event.piece):
                 case Piece.EMPTY:
                     physical_state.remove_piece_at(square)
@@ -147,7 +147,6 @@ def save_game(events, folder, game_index, start_move_index):
             physical_fen = fen_from_board(physical_state)
             if physical_fen in legal_moves:
                 move = legal_moves[physical_fen]
-                print(move)
                 file.write(move + '\n')
                 game.push_uci(move)
                 legal_moves = legal_fens(game)
@@ -157,6 +156,7 @@ def save_game(events, folder, game_index, start_move_index):
         file.write(game.fen())
 
 def save_games(events):
+    print('saving games...')
     folder = time.strftime("logs/%Y-%m-%d_%H.%M.%S/")
     os.makedirs(folder)
 
@@ -169,8 +169,8 @@ def save_games(events):
             continue
 
         game_index += 1
-        print('saving game ' + str(game_index))
         save_game(events, folder, game_index, start_move_index)
+    print('saved ' + str(game_index) + ' games to ' + folder)
 
 def print_events(events):
     for event in events:
