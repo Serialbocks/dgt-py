@@ -1,4 +1,4 @@
-import os
+import os, time
 import pyautogui
 
 from dgt_constants import DgtConstants
@@ -83,6 +83,10 @@ def fen_from_board(board):
     fen = board.fen()
     return fen[:fen.find(' ')]
 
+def is_white_to_move(board):
+    fen = board.fen()
+    return fen[fen.index(' ')+1:][0] == 'w'
+
 def legal_fens(board):
     legal_moves = list(board.legal_moves)
     result = {}
@@ -117,6 +121,11 @@ def receive_board_message(ser):
         s += c
         bytes_read += 1
     return s
+
+def get_dgt_board_state(ser):
+    request_board_state(ser)
+    time.sleep(0.3)
+    return receive_board_message(ser)
 
 def get_piece_on_browser_square(driver, file, rank):
     selector = '.piece.square-' + file + rank
