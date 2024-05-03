@@ -151,7 +151,7 @@ class Game():
 game = None
 
 def default_argument_parser(for_name: str) -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(for_name, description="Show game following chess rules from DGT board to console")
+    parser = argparse.ArgumentParser(for_name, description="Play game on chess.com in browser")
     parser.add_argument("--port", type=str, default="COM10", help="Name of serial port to connect to")
     parser.add_argument("--url", type=str, default="https://www.chess.com/play/computer", help="Starting URL")
     parser.add_argument('--fullscreen', action=argparse.BooleanOptionalAction, help="Automatically set browser window to fullscreen")

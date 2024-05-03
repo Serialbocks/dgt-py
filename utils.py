@@ -106,6 +106,18 @@ def request_board_state(ser):
 def board_reset(ser):
     ser.write(bytes([DgtConstants.DGT_SEND_RESET]))
 
+def request_board_ee_moves(ser):
+    ser.write(bytes([DgtConstants.DGT_SEND_EE_MOVES]))
+
+def receive_board_message(ser):
+    s = b''
+    bytes_read = 0
+    while(ser.in_waiting > 0):
+        c = ser.read(1)
+        s += c
+        bytes_read += 1
+    return s
+
 def get_piece_on_browser_square(driver, file, rank):
     selector = '.piece.square-' + file + rank
     try:
