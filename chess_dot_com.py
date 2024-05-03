@@ -1,5 +1,5 @@
 import argparse
-import sys, os, time
+import sys, os, time, logging
 import enum
 import serial
 import chess
@@ -25,6 +25,9 @@ class Game():
         self.init_game()
 
     def init_game(self):
+        filename = time.strftime("logs/%Y-%m-%d_%H.%M.%S.log")
+        logging.basicConfig(filename=filename, filemode='w', level=logging.DEBUG)
+
         self.board_reset_msg_sent = False
         self.serial = serial.Serial(port=self.port, baudrate=9600)
         self.reset_game()
@@ -40,7 +43,7 @@ class Game():
             self.driver.fullscreen_window()
         body.send_keys(Keys.CONTROL + Keys.HOME)
 
-        self.state = GameState.PRE_GAME
+        self.set_state(GameState.PRE_GAME)
 
     def reset_game(self):
         board_reset(self.serial)
@@ -49,12 +52,19 @@ class Game():
         self.state = GameState.PRE_GAME
 
     def debug_print(self, text):
+        self.logged_this_state = True
+        logging.debug(text)
         if self.debug:
             print(text)
 
     def close(self):
         if self.serial.is_open:
             self.serial.close()
+
+    def set_state(self, state):
+        self.debug_print(self.state)
+        self.logged_this_state = False
+        self.state = state
 
     def get_board_state(self):
         request_board_state(self.serial)
@@ -70,6 +80,8 @@ class Game():
     def state_pre_game(self):
         s = self.get_board_state()
         fen = dgt_message_to_fen(s)
+        if not self.logged_this_state:
+            self.debug_print("DGT FEN: " + fen)
         if fen != STARTING_FEN:
             if not self.board_reset_msg_sent:
                 self.board_reset_msg_sent = True
@@ -80,39 +92,35 @@ class Game():
         if len(color_in) > 0 and color_in[0].lower() == 'b':
             self.is_white = False
 
-        # check board location and dimensions for auto screen
-        selector = ".square-18"
-        if not self.is_white:
-            selector = ".square-81"
-        e = self.driver.find_element(By.CSS_SELECTOR, selector)
-        self.debug_print(e.location)
-
         if self.is_white:
-            self.state = GameState.PLAYER_TURN
+            self.set_state(GameState.PLAYER_TURN)
         else:
-            self.state = GameState.OPPONENT_TURN
+            self.set_state(GameState.OPPONENT_TURN)
         
 
     def state_player_turn(self):
         s = self.get_board_state()
         fen = dgt_message_to_fen(s)
+        if not self.logged_this_state:
+            self.debug_print("DGT FEN: " + fen)
         if fen in self.legal_moves:
             move = self.legal_moves[fen]
             self.board.push_uci(move)
             self.legal_moves = legal_fens(self.board)
             make_uci_move(self.driver, move, self.is_white)
-            self.state = GameState.OPPONENT_TURN
+            self.set_state(GameState.OPPONENT_TURN)
             if(self.board.is_checkmate()):
                 self.reset_game()
 
     def state_opponent_turn(self):
         fen = get_fen_from_browser(self.driver)
-        self.debug_print(fen)
+        self.logged_this_state = False
+        self.debug_print("Browser FEN: " + fen)
         if fen in self.legal_moves:
             move = self.legal_moves[fen]
             self.board.push_uci(move)
             self.legal_moves = legal_fens(self.board)
-            self.state = GameState.WAIT_PLAYER_UPDATE_OPPONENT
+            self.set_state(GameState.WAIT_PLAYER_UPDATE_OPPONENT)
             if(self.board.is_checkmate()):
                 self.reset_game()
         
@@ -120,8 +128,12 @@ class Game():
         s = self.get_board_state()
         board_fen = dgt_message_to_fen(s)
         game_fen = fen_from_board(self.board)
+        if not self.logged_this_state:
+            self.debug_print("DGT FEN: " + board_fen)
+            self.debug_print("Internal State FEN: " + game_fen)
+            
         if board_fen == game_fen:
-            self.state = GameState.PLAYER_TURN
+            self.set_state(GameState.PLAYER_TURN)
 
     def run(self):
         match self.state:
@@ -154,14 +166,10 @@ def main():
     url = args.url
     fullscreen = args.fullscreen
     game = Game(port, url, fullscreen, debug)
-    
-    previous_state = GameState.OPPONENT_TURN
+
     while True:
         game.run()
         time.sleep(0.033) # ~30fps
-        if game.state != previous_state:
-            game.debug_print(game.state)
-            previous_state = game.state
 
 if __name__ == '__main__':
     try:

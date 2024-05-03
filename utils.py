@@ -51,7 +51,8 @@ def piece_byte_to_ascii(piece_byte):
 def dgt_message_to_fen(message):
     stripped_message = message[3:]
     if(len(stripped_message) != 64):
-        raise ValueError("Invalid board state message")
+        print("Invalid board state message")
+        return ''
     
     result = ''
     empty_count = 0
