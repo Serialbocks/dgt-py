@@ -73,7 +73,7 @@ class Game():
         board_reset(self.serial)
         self.board = chess.Board(starting_fen)
         self.legal_moves = legal_fens(self.board)
-        self.state = self.set_state(GameState.PRE_GAME)
+        self.set_state(GameState.PRE_GAME)
 
     def debug_print(self, text):
         self.logged_this_state = True
