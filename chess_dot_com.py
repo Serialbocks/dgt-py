@@ -54,6 +54,10 @@ class Game():
 
         self.board_reset_msg_sent = False
         self.serial = serial.Serial(port=self.port, baudrate=9600)
+
+        if(self.use_board_state):
+            self.set_fen_to_last_ee_game()
+
         self.reset_game(self.starting_fen)
         options = Options()
         options.headless = True
@@ -69,6 +73,17 @@ class Game():
         body.send_keys(Keys.CONTROL + Keys.HOME)
 
         self.set_state(GameState.PRE_GAME)
+
+    def set_fen_to_last_ee_game(self):
+        events = get_ee_events(self.serial)
+        games = get_ee_games(events)
+        num_games = len(games)
+        if num_games <= 0:
+            return
+        last_game = games[num_games-1]
+        self.starting_fen = last_game.fen()
+        self.url = 'https://www.chess.com/practice/custom?color=white&fen=' + self.starting_fen + '&is960=false&moveList='
+        self.debug_print('Setting fen to ' + self.starting_fen)
 
     def reset_game(self, starting_fen):
         board_reset(self.serial)
@@ -171,7 +186,7 @@ def default_argument_parser(for_name: str) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(for_name, description="Play game on chess.com in browser")
     parser.add_argument("--port", type=str, default="COM10", help="Name of serial port to connect to")
     parser.add_argument("--url", type=str, default="https://www.chess.com/play/computer", help="Starting URL")
-    parser.add_argument("--fen", type=str, default=STARTING_FEN, help="Starting FEN to play from")
+    parser.add_argument("--fen", type=str, default=FULL_STARTING_FEN, help="Starting FEN to play from")
     parser.add_argument('--fullscreen', action=argparse.BooleanOptionalAction, help="Automatically set browser window to fullscreen")
     parser.add_argument('--useBoardState', action=argparse.BooleanOptionalAction, help="Use board's current state as starting position")
     parser.add_argument('--debug', action=argparse.BooleanOptionalAction, help="Print debug text to console")
@@ -186,7 +201,7 @@ def main():
     fen = args.fen
     use_board_state = args.useBoardState
     fullscreen = args.fullscreen
-    game = Game(port, url, fullscreen, fen, debug)
+    game = Game(port, url, fullscreen, fen, use_board_state, debug)
 
     try:
         while True:
