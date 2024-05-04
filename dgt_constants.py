@@ -2,6 +2,7 @@
 import enum
 
 STARTING_FEN ='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
+FULL_STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
 class Role(enum.Enum):
     PAWN = 1

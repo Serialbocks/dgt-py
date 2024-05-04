@@ -18,12 +18,13 @@ class GameState(enum.Enum):
     WAIT_PLAYER_UPDATE_OPPONENT = 3
 
 class Game():
-    def __init__(self, port, url, fullscreen, starting_fen, debug=False):
+    def __init__(self, port, url, fullscreen, starting_fen, use_board_state, debug=False):
         self.port = port
         self.debug = debug
         self.url = url
         self.fullscreen = fullscreen
         self.starting_fen = starting_fen
+        self.use_board_state = use_board_state
         self.init_game()
 
     def __str__(self):
@@ -172,6 +173,7 @@ def default_argument_parser(for_name: str) -> argparse.ArgumentParser:
     parser.add_argument("--url", type=str, default="https://www.chess.com/play/computer", help="Starting URL")
     parser.add_argument("--fen", type=str, default=STARTING_FEN, help="Starting FEN to play from")
     parser.add_argument('--fullscreen', action=argparse.BooleanOptionalAction, help="Automatically set browser window to fullscreen")
+    parser.add_argument('--useBoardState', action=argparse.BooleanOptionalAction, help="Use board's current state as starting position")
     parser.add_argument('--debug', action=argparse.BooleanOptionalAction, help="Print debug text to console")
     return parser
 
@@ -182,6 +184,7 @@ def main():
     debug = args.debug
     url = args.url
     fen = args.fen
+    use_board_state = args.useBoardState
     fullscreen = args.fullscreen
     game = Game(port, url, fullscreen, fen, debug)
 
