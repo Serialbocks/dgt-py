@@ -56,7 +56,7 @@ class Game():
 
     def init_game(self):
         log_filename = time.strftime("logs/%Y-%m-%d_%H.%M.%S.log")
-        logging.basicConfig(filename=log_filename, filemode='w', level=logging.DEBUG)
+        logging.basicConfig(filename=log_filename, filemode='w', level=logging.INFO)
 
         self.board_reset_msg_sent = False
         self.serial = serial.Serial(port=self.port, baudrate=9600)
@@ -125,7 +125,7 @@ class Game():
 
     def debug_print(self, text):
         self.logged_this_state = True
-        logging.debug(text)
+        logging.info(text)
         if self.debug:
             print(text)
 
