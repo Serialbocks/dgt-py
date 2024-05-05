@@ -3,13 +3,17 @@ import sys, os, time, logging
 import enum
 import serial
 import traceback
+from pathlib import Path
 import chess
+import pickle
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 
 from utils import *
 from dgt_constants import *
+
+COOKIE_FILE = 'cookies.pkl'
 
 class GameState(enum.Enum):
     PRE_GAME = 0
@@ -64,6 +68,13 @@ class Game():
         options.headless = True
         options.add_experimental_option("excludeSwitches", ['enable-automation', 'enable-logging'])
         self.driver = webdriver.Chrome(options)
+        
+        self.driver.get(self.url)
+        my_file = Path(COOKIE_FILE)
+        if my_file.is_file():
+            cookies = pickle.load(open(COOKIE_FILE, "rb"))
+            for cookie in cookies:
+                self.driver.add_cookie(cookie)
         self.driver.get(self.url)
 
         # maximize to full screen and check for board
@@ -94,12 +105,15 @@ class Game():
 
     def reset_game(self, starting_fen, state=GameState.PRE_GAME):
         if(self.saved_game is not None):
+            if self.board is not None:
+                self.saved_game.write(self.board.fen())
             self.saved_game.close()
 
         saved_games_dir = 'saved_games/'
         game_index = len([name for name in os.listdir(saved_games_dir) if os.path.isfile(os.path.join(saved_games_dir, name))])
         filename = saved_games_dir + str(game_index) + '.game'
         self.saved_game = open(filename, 'a')
+        self.saved_game.write(time.strftime("%Y-%m-%d_%H.%M.%S\n"))
         #board_reset(self.serial)
         self.board = chess.Board(starting_fen)
         self.legal_moves = legal_fens(self.board)
@@ -123,6 +137,10 @@ class Game():
         self.debug_print(self.state)
         self.logged_this_state = False
         self.state_iterations = 0
+
+    def make_move(self, uci_move):
+        self.board.push_uci(uci_move)
+        self.saved_game.write(uci_move + '\n')
     
     def state_pre_game(self):
         s = get_dgt_board_state(self.serial)
@@ -140,6 +158,8 @@ class Game():
         if len(color_in) > 0 and color_in[0].lower() == 'b':
             self.is_white = False
 
+        pickle.dump(self.driver.get_cookies(), open(COOKIE_FILE, "wb"))
+
         if is_white_to_move(self.board) == self.is_white:
             self.set_state(GameState.PLAYER_TURN)
         else:
@@ -152,7 +172,7 @@ class Game():
             self.debug_print("DGT FEN: " + fen)
         if fen in self.legal_moves:
             move = self.legal_moves[fen]
-            self.board.push_uci(move)
+            self.make_move(move)
             self.legal_moves = legal_fens(self.board)
             make_uci_move(self.driver, move, self.is_white)
             self.set_state(GameState.OPPONENT_TURN)
@@ -165,7 +185,7 @@ class Game():
             self.debug_print("Browser FEN: " + fen)
         if fen in self.legal_moves:
             move = self.legal_moves[fen]
-            self.board.push_uci(move)
+            self.make_move(move)
             self.legal_moves = legal_fens(self.board)
             self.set_state(GameState.WAIT_PLAYER_UPDATE_OPPONENT)
             if(self.board.is_checkmate()):
@@ -193,7 +213,8 @@ class Game():
             case GameState.WAIT_PLAYER_UPDATE_OPPONENT:
                 self.state_wait_player_update_opponent()
             case _:
-                raise RuntimeError('Game got into an invalid state')
+                self.debug_print('Game got into an invalid state: ' + str(self.state))
+                time.sleep(5)
         self.state_iterations += 1
 
 game = None
