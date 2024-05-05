@@ -18,12 +18,14 @@ class GameState(enum.Enum):
     WAIT_PLAYER_UPDATE_OPPONENT = 3
 
 class Game():
-    def __init__(self, port, url, fullscreen, starting_fen, debug=False):
+    def __init__(self, port, url, fullscreen, starting_fen, use_board_state, debug=False):
         self.port = port
         self.debug = debug
         self.url = url
         self.fullscreen = fullscreen
         self.starting_fen = starting_fen
+        self.use_board_state = use_board_state
+        self.saved_game = None
         self.init_game()
 
     def __str__(self):
@@ -48,11 +50,15 @@ class Game():
         return result
 
     def init_game(self):
-        filename = time.strftime("logs/%Y-%m-%d_%H.%M.%S.log")
-        logging.basicConfig(filename=filename, filemode='w', level=logging.DEBUG)
+        log_filename = time.strftime("logs/%Y-%m-%d_%H.%M.%S.log")
+        logging.basicConfig(filename=log_filename, filemode='w', level=logging.DEBUG)
 
         self.board_reset_msg_sent = False
         self.serial = serial.Serial(port=self.port, baudrate=9600)
+
+        if(self.use_board_state):
+            self.set_fen_to_last_ee_game()
+
         self.reset_game(self.starting_fen)
         options = Options()
         options.headless = True
@@ -69,11 +75,35 @@ class Game():
 
         self.set_state(GameState.PRE_GAME)
 
-    def reset_game(self, starting_fen):
-        board_reset(self.serial)
+    def set_fen_to_last_ee_game(self):
+        events = get_ee_events(self.serial)
+        games = get_ee_games(events)
+        num_games = len(games)
+        if num_games <= 0:
+            return
+        last_game = games[num_games-1]
+        self.starting_fen = last_game.fen()
+        moves = ''
+        while last_game.fen() != FULL_STARTING_FEN:
+            if len(moves) > 0:
+                moves = ' ' + moves
+            moves = last_game.pop().uci() + moves
+        self.url = 'https://www.chess.com/practice/custom?color=white&fen=' + FULL_STARTING_FEN + '&is960=false&moveList=' + moves
+        self.debug_print('Setting fen to ' + self.starting_fen)
+        self.debug_print('Setting url to ' + self.url)
+
+    def reset_game(self, starting_fen, state=GameState.PRE_GAME):
+        if(self.saved_game is not None):
+            self.saved_game.close()
+
+        saved_games_dir = 'saved_games/'
+        game_index = len([name for name in os.listdir(saved_games_dir) if os.path.isfile(os.path.join(saved_games_dir, name))])
+        filename = saved_games_dir + str(game_index) + '.game'
+        self.saved_game = open(filename, 'a')
+        #board_reset(self.serial)
         self.board = chess.Board(starting_fen)
         self.legal_moves = legal_fens(self.board)
-        self.set_state(GameState.PRE_GAME)
+        self.state = self.set_state(state)
 
     def debug_print(self, text):
         self.logged_this_state = True
@@ -84,12 +114,15 @@ class Game():
     def close(self):
         if self.serial.is_open:
             self.serial.close()
+        if self.saved_game is not None:
+            self.saved_game.close()
 
     def set_state(self, state):
         self.logged_this_state = False
         self.state = state
         self.debug_print(self.state)
         self.logged_this_state = False
+        self.state_iterations = 0
     
     def state_pre_game(self):
         s = get_dgt_board_state(self.serial)
@@ -107,12 +140,10 @@ class Game():
         if len(color_in) > 0 and color_in[0].lower() == 'b':
             self.is_white = False
 
-
         if is_white_to_move(self.board) == self.is_white:
             self.set_state(GameState.PLAYER_TURN)
         else:
             self.set_state(GameState.OPPONENT_TURN)
-        
 
     def state_player_turn(self):
         s = get_dgt_board_state(self.serial)
@@ -126,11 +157,11 @@ class Game():
             make_uci_move(self.driver, move, self.is_white)
             self.set_state(GameState.OPPONENT_TURN)
             if(self.board.is_checkmate()):
-                self.reset_game(STARTING_FEN)
+                self.reset_game(FULL_STARTING_FEN)
 
     def state_opponent_turn(self):
         fen = get_fen_from_browser(self.driver)
-        if not self.logged_this_state:
+        if self.state_iterations == 0:
             self.debug_print("Browser FEN: " + fen)
         if fen in self.legal_moves:
             move = self.legal_moves[fen]
@@ -138,7 +169,7 @@ class Game():
             self.legal_moves = legal_fens(self.board)
             self.set_state(GameState.WAIT_PLAYER_UPDATE_OPPONENT)
             if(self.board.is_checkmate()):
-                self.reset_game(STARTING_FEN)
+                self.reset_game(FULL_STARTING_FEN)
         
     def state_wait_player_update_opponent(self):
         s = get_dgt_board_state(self.serial)
@@ -163,6 +194,7 @@ class Game():
                 self.state_wait_player_update_opponent()
             case _:
                 raise RuntimeError('Game got into an invalid state')
+        self.state_iterations += 1
 
 game = None
 
@@ -170,8 +202,9 @@ def default_argument_parser(for_name: str) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(for_name, description="Play game on chess.com in browser")
     parser.add_argument("--port", type=str, default="COM10", help="Name of serial port to connect to")
     parser.add_argument("--url", type=str, default="https://www.chess.com/play/computer", help="Starting URL")
-    parser.add_argument("--fen", type=str, default=STARTING_FEN, help="Starting FEN to play from")
+    parser.add_argument("--fen", type=str, default=FULL_STARTING_FEN, help="Starting FEN to play from")
     parser.add_argument('--fullscreen', action=argparse.BooleanOptionalAction, help="Automatically set browser window to fullscreen")
+    parser.add_argument('--useBoardState', action=argparse.BooleanOptionalAction, help="Use board's current state as starting position")
     parser.add_argument('--debug', action=argparse.BooleanOptionalAction, help="Print debug text to console")
     return parser
 
@@ -182,8 +215,9 @@ def main():
     debug = args.debug
     url = args.url
     fen = args.fen
+    use_board_state = args.useBoardState
     fullscreen = args.fullscreen
-    game = Game(port, url, fullscreen, fen, debug)
+    game = Game(port, url, fullscreen, fen, use_board_state, debug)
 
     try:
         while True:
