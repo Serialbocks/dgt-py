@@ -25,6 +25,7 @@ class Game():
         self.fullscreen = fullscreen
         self.starting_fen = starting_fen
         self.use_board_state = use_board_state
+        self.saved_game = None
         self.init_game()
 
     def __str__(self):
@@ -49,7 +50,7 @@ class Game():
         return result
 
     def init_game(self):
-        filename = time.strftime("logs/%Y-%m-%d_%H.%M.%S.log")
+        log_filename = time.strftime("logs/%Y-%m-%d_%H.%M.%S.log")
         logging.basicConfig(filename=filename, filemode='w', level=logging.DEBUG)
 
         self.board_reset_msg_sent = False
@@ -91,11 +92,18 @@ class Game():
         self.debug_print('Setting fen to ' + self.starting_fen)
         self.debug_print('Setting url to ' + self.url)
 
-    def reset_game(self, starting_fen):
-        board_reset(self.serial)
+    def reset_game(self, starting_fen, state=GameState.PRE_GAME):
+        if(self.saved_game is not None):
+            self.saved_game.close()
+
+        saved_games_dir = 'saved_games/'
+        game_index = len([name for name in os.listdir(saved_games_dir) if os.path.isfile(os.path.join(saved_games_dir, name))])
+        filename = saved_games_dir + str(game_index) + '.game'
+        self.saved_game = open(filename, 'a')
+        #board_reset(self.serial)
         self.board = chess.Board(starting_fen)
         self.legal_moves = legal_fens(self.board)
-        self.state = self.set_state(GameState.PRE_GAME)
+        self.state = self.set_state(state)
 
     def debug_print(self, text):
         self.logged_this_state = True
@@ -106,12 +114,15 @@ class Game():
     def close(self):
         if self.serial.is_open:
             self.serial.close()
+        if self.saved_game is not None:
+            self.saved_game.close()
 
     def set_state(self, state):
         self.logged_this_state = False
         self.state = state
         self.debug_print(self.state)
         self.logged_this_state = False
+        self.state_iterations = 0
     
     def state_pre_game(self):
         s = get_dgt_board_state(self.serial)
@@ -129,12 +140,10 @@ class Game():
         if len(color_in) > 0 and color_in[0].lower() == 'b':
             self.is_white = False
 
-
         if is_white_to_move(self.board) == self.is_white:
             self.set_state(GameState.PLAYER_TURN)
         else:
             self.set_state(GameState.OPPONENT_TURN)
-        
 
     def state_player_turn(self):
         s = get_dgt_board_state(self.serial)
@@ -148,11 +157,11 @@ class Game():
             make_uci_move(self.driver, move, self.is_white)
             self.set_state(GameState.OPPONENT_TURN)
             if(self.board.is_checkmate()):
-                self.reset_game(STARTING_FEN)
+                self.reset_game(FULL_STARTING_FEN)
 
     def state_opponent_turn(self):
         fen = get_fen_from_browser(self.driver)
-        if not self.logged_this_state:
+        if self.state_iterations == 0:
             self.debug_print("Browser FEN: " + fen)
         if fen in self.legal_moves:
             move = self.legal_moves[fen]
@@ -160,7 +169,7 @@ class Game():
             self.legal_moves = legal_fens(self.board)
             self.set_state(GameState.WAIT_PLAYER_UPDATE_OPPONENT)
             if(self.board.is_checkmate()):
-                self.reset_game(STARTING_FEN)
+                self.reset_game(FULL_STARTING_FEN)
         
     def state_wait_player_update_opponent(self):
         s = get_dgt_board_state(self.serial)
@@ -185,6 +194,7 @@ class Game():
                 self.state_wait_player_update_opponent()
             case _:
                 raise RuntimeError('Game got into an invalid state')
+        self.state_iterations += 1
 
 game = None
 
