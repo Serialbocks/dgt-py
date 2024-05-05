@@ -22,7 +22,7 @@ class GameState(enum.Enum):
     WAIT_PLAYER_UPDATE_OPPONENT = 3
 
 class Game():
-    def __init__(self, port, url, fullscreen, starting_fen, use_board_state, debug=False):
+    def __init__(self, port, url, fullscreen, starting_fen, use_board_state, analysis, debug=False):
         self.port = port
         self.debug = debug
         self.url = url
@@ -30,6 +30,7 @@ class Game():
         self.starting_fen = starting_fen
         self.use_board_state = use_board_state
         self.saved_game_filename = None
+        self.analysis = analysis
         self.init_game()
 
     def __str__(self):
@@ -62,6 +63,9 @@ class Game():
 
         if(self.use_board_state):
             self.set_fen_to_last_ee_game()
+
+        if(self.analysis):
+            self.url = "https://chess.com/analysis"
 
         self.reset_game(self.starting_fen)
         options = Options()
@@ -132,6 +136,11 @@ class Game():
     def set_state(self, state):
         if state == None:
             raise ValueError('State being set to None?')
+        
+        # if we're in analysis mode, the player is always moving the pieces
+        if self.analysis and state == GameState.OPPONENT_TURN:
+            state = GameState.PLAYER_TURN
+
         self.logged_this_state = False
         self.state = state
         self.debug_print(self.state)
@@ -227,6 +236,7 @@ def default_argument_parser(for_name: str) -> argparse.ArgumentParser:
     parser.add_argument("--fen", type=str, default=FULL_STARTING_FEN, help="Starting FEN to play from")
     parser.add_argument('--fullscreen', action=argparse.BooleanOptionalAction, help="Automatically set browser window to fullscreen")
     parser.add_argument('--useBoardState', action=argparse.BooleanOptionalAction, help="Use board's current state as starting position")
+    parser.add_argument('--analysis', action=argparse.BooleanOptionalAction, help="Play in analysis mode")
     parser.add_argument('--debug', action=argparse.BooleanOptionalAction, help="Print debug text to console")
     return parser
 
@@ -238,8 +248,9 @@ def main():
     url = args.url
     fen = args.fen
     use_board_state = args.useBoardState
+    analysis = args.analysis
     fullscreen = args.fullscreen
-    game = Game(port, url, fullscreen, fen, use_board_state, debug)
+    game = Game(port, url, fullscreen, fen, use_board_state, analysis, debug)
 
     try:
         while True:
