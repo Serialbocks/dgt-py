@@ -117,7 +117,7 @@ class Game():
 
         self.board = chess.Board(starting_fen)
         self.legal_moves = legal_fens(self.board)
-        self.state = self.set_state(state)
+        self.set_state(state)
 
     def debug_print(self, text):
         self.logged_this_state = True
@@ -215,8 +215,7 @@ class Game():
             case GameState.WAIT_PLAYER_UPDATE_OPPONENT:
                 self.state_wait_player_update_opponent()
             case _:
-                self.debug_print('Game got into an invalid state: ' + str(self.state))
-                time.sleep(5)
+                raise ValueError('Game got into an invalid state: ' + str(self.state))
         self.state_iterations += 1
 
 game = None
