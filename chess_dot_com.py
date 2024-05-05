@@ -82,8 +82,16 @@ class Game():
             return
         last_game = games[num_games-1]
         self.starting_fen = last_game.fen()
-        self.url = 'https://www.chess.com/practice/custom?color=white&fen=' + self.starting_fen + '&is960=false&moveList='
+        moves = ''
+        while last_game.fen() != FULL_STARTING_FEN:
+            if len(moves) > 0:
+                moves = ' ' + moves
+            moves = last_game.pop().uci() + moves
+        print('|' + moves+ '|')
+        self.url = 'https://www.chess.com/practice/custom?color=white&fen=' + FULL_STARTING_FEN + '&is960=false&moveList=' + moves
+        # https://www.chess.com/practice/custom?color=white&fen=rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR%20w%20KQkq%20-%200%201&is960=false&moveList=e2e4%20e7e5%20d1h5%20g8f6%20h5e5
         self.debug_print('Setting fen to ' + self.starting_fen)
+        self.debug_print('Setting url to ' + self.url)
 
     def reset_game(self, starting_fen):
         board_reset(self.serial)
