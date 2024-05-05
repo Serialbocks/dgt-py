@@ -29,7 +29,7 @@ class Game():
         self.fullscreen = fullscreen
         self.starting_fen = starting_fen
         self.use_board_state = use_board_state
-        self.saved_game = None
+        self.saved_game_filename = None
         self.init_game()
 
     def __str__(self):
@@ -104,17 +104,17 @@ class Game():
         self.debug_print('Setting url to ' + self.url)
 
     def reset_game(self, starting_fen, state=GameState.PRE_GAME):
-        if(self.saved_game is not None):
+        if(self.saved_game_filename is not None):
             if self.board is not None:
-                self.saved_game.write(self.board.fen())
-            self.saved_game.close()
+                with open(self.saved_game_filename, 'a') as file:
+                    file.write(self.board.fen())
 
         saved_games_dir = 'saved_games/'
         game_index = len([name for name in os.listdir(saved_games_dir) if os.path.isfile(os.path.join(saved_games_dir, name))])
-        filename = saved_games_dir + str(game_index) + '.game'
-        self.saved_game = open(filename, 'a')
-        self.saved_game.write(time.strftime("%Y-%m-%d_%H.%M.%S\n"))
-        #board_reset(self.serial)
+        self.saved_game_filename = saved_games_dir + str(game_index) + '.game'
+        with open(self.saved_game_filename, 'a') as file:
+            file.write(time.strftime("%Y-%m-%d_%H.%M.%S\n"))
+
         self.board = chess.Board(starting_fen)
         self.legal_moves = legal_fens(self.board)
         self.state = self.set_state(state)
@@ -128,10 +128,10 @@ class Game():
     def close(self):
         if self.serial.is_open:
             self.serial.close()
-        if self.saved_game is not None:
-            self.saved_game.close()
 
     def set_state(self, state):
+        if state == None:
+            raise ValueError('State being set to None?')
         self.logged_this_state = False
         self.state = state
         self.debug_print(self.state)
@@ -140,7 +140,8 @@ class Game():
 
     def make_move(self, uci_move):
         self.board.push_uci(uci_move)
-        self.saved_game.write(uci_move + '\n')
+        with open(self.saved_game_filename, 'a') as file:
+            file.write(uci_move + '\n')
     
     def state_pre_game(self):
         s = get_dgt_board_state(self.serial)
@@ -170,6 +171,7 @@ class Game():
         fen = dgt_message_to_fen(s)
         if not self.logged_this_state:
             self.debug_print("DGT FEN: " + fen)
+            self.debug_print("Internal State FEN: " + self.board.fen())
         if fen in self.legal_moves:
             move = self.legal_moves[fen]
             self.make_move(move)
@@ -197,7 +199,7 @@ class Game():
         game_fen = fen_from_board(self.board)
         if not self.logged_this_state:
             self.debug_print("DGT FEN: " + board_fen)
-            self.debug_print("Internal State FEN: " + game_fen)
+            self.debug_print("Internal State FEN: " + self.board.fen())
             
         if board_fen == game_fen:
             self.set_state(GameState.PLAYER_TURN)
