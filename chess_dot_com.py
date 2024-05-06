@@ -22,13 +22,14 @@ class GameState(enum.Enum):
     WAIT_PLAYER_UPDATE_OPPONENT = 3
 
 class Game():
-    def __init__(self, port, url, fullscreen, starting_fen, use_board_state, analysis, debug=False):
+    def __init__(self, port, url, fullscreen, starting_fen, use_board_state, analysis, use_game, debug=False):
         self.port = port
         self.debug = debug
         self.url = url
         self.fullscreen = fullscreen
         self.starting_fen = starting_fen
         self.use_board_state = use_board_state
+        self.use_game = use_game
         self.saved_game_filename = None
         self.analysis = analysis
         self.init_game()
@@ -63,6 +64,8 @@ class Game():
 
         if(self.use_board_state):
             self.set_fen_to_last_ee_game()
+        elif(self.use_game):
+            self.set_game_to_game_file()
 
         if(self.analysis):
             self.url = "https://chess.com/analysis"
@@ -89,6 +92,22 @@ class Game():
         body.send_keys(Keys.CONTROL + Keys.HOME)
 
         self.set_state(GameState.PRE_GAME)
+
+    def set_game_to_game_file(self):
+        moves = ''
+        game = chess.Board()
+        with open(self.use_game) as file:
+            file.readline()
+            while move := file.readline():
+                game.push_uci(move)
+                if len(moves) > 0:
+                    moves += ' '
+                moves += move
+
+        self.starting_fen = game.fen()
+        self.url = 'https://www.chess.com/practice/custom?color=white&fen=' + FULL_STARTING_FEN + '&is960=false&moveList=' + moves
+        self.debug_print('Setting fen to ' + self.starting_fen)
+        self.debug_print('Setting url to ' + self.url)
 
     def set_fen_to_last_ee_game(self):
         events = get_ee_events(self.serial)
@@ -236,6 +255,7 @@ def default_argument_parser(for_name: str) -> argparse.ArgumentParser:
     parser.add_argument("--fen", type=str, default=FULL_STARTING_FEN, help="Starting FEN to play from")
     parser.add_argument('--fullscreen', action=argparse.BooleanOptionalAction, help="Automatically set browser window to fullscreen")
     parser.add_argument('--useBoardState', action=argparse.BooleanOptionalAction, help="Use board's current state as starting position")
+    parser.add_argument('--useGame', type=str, help="Use saved game as starting position")
     parser.add_argument('--analysis', action=argparse.BooleanOptionalAction, help="Play in analysis mode")
     parser.add_argument('--debug', action=argparse.BooleanOptionalAction, help="Print debug text to console")
     return parser
@@ -248,9 +268,10 @@ def main():
     url = args.url
     fen = args.fen
     use_board_state = args.useBoardState
+    use_game = args.useGame
     analysis = args.analysis
     fullscreen = args.fullscreen
-    game = Game(port, url, fullscreen, fen, use_board_state, analysis, debug)
+    game = Game(port, url, fullscreen, fen, use_board_state, analysis, use_game, debug)
 
     try:
         while True:
