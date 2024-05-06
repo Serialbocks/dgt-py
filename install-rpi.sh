@@ -1,5 +1,6 @@
 sudo apt-get install -y build-essential zlib1g-dev uuid-dev liblzma-dev lzma-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev libbz2-dev < /dev/null
 sudo apt install -y libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev python3-tk tk-dev
+sudo apt-get install chromium-chromedriver
 
 # install python
 new_version="3.10.2"

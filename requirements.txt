@@ -3,3 +3,4 @@ chess
 pyautogui
 autoit
 selenium
+PyQt5
