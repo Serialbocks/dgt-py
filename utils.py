@@ -263,11 +263,13 @@ def get_ee_game(events, start_move_index):
     event = None
     move_index = start_move_index
     game = chess.Board()
-    if move_index < 0 or move_index >= len(events):
-        return game
+    
     physical_state = chess.Board()
     legal_moves = legal_fens(game)
     while type(event) is not SimpleEvent or (event.type != Event.EE_BEGINPOS and event.type != Event.EE_BEGINPOS_ROT and event.type != Event.EE_EOF):
+        if move_index < 0 or move_index >= len(events):
+            break
+        
         event = events[move_index]
 
         if type(event) is not FieldEvent:
