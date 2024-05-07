@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'main.ui'
+# Form implementation generated from reading ui file 'ui/main.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -17,12 +17,21 @@ class Ui_MainWindow(object):
         MainWindow.resize(800, 460)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.ConnectBoard = QtWidgets.QPushButton(self.centralwidget)
-        self.ConnectBoard.setGeometry(QtCore.QRect(280, 170, 191, 101))
+        self.connectBoard = QtWidgets.QPushButton(self.centralwidget)
+        self.connectBoard.setGeometry(QtCore.QRect(220, 130, 311, 151))
         font = QtGui.QFont()
         font.setPointSize(18)
-        self.ConnectBoard.setFont(font)
-        self.ConnectBoard.setObjectName("ConnectBoard")
+        self.connectBoard.setFont(font)
+        self.connectBoard.setObjectName("connectBoard")
+        self.serialPort = QtWidgets.QComboBox(self.centralwidget)
+        self.serialPort.setGeometry(QtCore.QRect(220, 70, 311, 51))
+        self.serialPort.setObjectName("serialPort")
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setGeometry(QtCore.QRect(220, 30, 51, 41))
+        font = QtGui.QFont()
+        font.setPointSize(18)
+        self.label.setFont(font)
+        self.label.setObjectName("label")
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -34,4 +43,5 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.ConnectBoard.setText(_translate("MainWindow", "Connect Board"))
+        self.connectBoard.setText(_translate("MainWindow", "Connect Board"))
+        self.label.setText(_translate("MainWindow", "Port"))

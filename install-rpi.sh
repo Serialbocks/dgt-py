@@ -1,4 +1,4 @@
-sudo apt-get install -y chromium-chromedriver
+sudo apt-get install -y chromium-chromedriver python3-pyqt5
 
 git clone --recurse-submodules https://github.com/SeleniumHQ/selenium.git
 cd selenium/rust
