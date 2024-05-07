@@ -33,6 +33,7 @@ class Game():
         self.saved_game_filename = None
         self.analysis = analysis
         self.color = color
+        self.driver = None
         self.init_game()
 
     def __str__(self):
@@ -166,7 +167,8 @@ class Game():
         self.debug_print(self.state)
         self.logged_this_state = False
         self.state_iterations = 0
-        pickle.dump(self.driver.get_cookies(), open(COOKIE_FILE, "wb"))
+        if(self.driver is not None):
+            pickle.dump(self.driver.get_cookies(), open(COOKIE_FILE, "wb"))
 
     def make_move(self, uci_move):
         self.board.push_uci(uci_move)
