@@ -14,7 +14,7 @@ def serial_ports():
         ports = ['COM%s' % (i + 1) for i in range(256)]
     elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
         # this excludes your current terminal "/dev/tty"
-        subprocess.run(["rfcomm", "connect hci0 60:8A:10:62:FA:82"])
+        subprocess.run(["rfcomm", "connect", 'hci0', '60:8A:10:62:FA:82'])
         time.sleep(2)
         ports = glob.glob('/dev/tty[A-Za-z]*')
     elif sys.platform.startswith('darwin'):
