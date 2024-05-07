@@ -166,6 +166,7 @@ class Game():
         self.debug_print(self.state)
         self.logged_this_state = False
         self.state_iterations = 0
+        pickle.dump(self.driver.get_cookies(), open(COOKIE_FILE, "wb"))
 
     def make_move(self, uci_move):
         self.board.push_uci(uci_move)
@@ -191,7 +192,7 @@ class Game():
         elif len(self.color) > 0 and self.color[0] == 'b':
             self.is_white = False
 
-        pickle.dump(self.driver.get_cookies(), open(COOKIE_FILE, "wb"))
+        # pickle.dump(self.driver.get_cookies(), open(COOKIE_FILE, "wb"))
 
         if is_white_to_move(self.board) == self.is_white:
             self.set_state(GameState.PLAYER_TURN)
