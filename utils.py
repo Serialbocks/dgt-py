@@ -362,12 +362,12 @@ def make_uci_move(driver, move, is_white):
         if promotion_piece == 'q':
             pass
         elif promotion_piece == 'n':
-            move_val += square_width
+            move_val -= square_width
         elif promotion_piece == 'r':
-            move_val += 2 * square_width
+            move_val -= 2 * square_width
             pass
         elif promotion_piece == 'b':
-            move_val += 3 * square_width
+            move_val -= 3 * square_width
             pass
         else:
             raise ValueError("invalid uci move")
@@ -435,19 +435,19 @@ class AutoScreen:
             return
         
         move_val = 0
-        match move.lower()[4]:
-            case 'q':
-                pass
-            case 'n':
-                move_val += self.square_width
-            case 'r':
-                move_val += 2 * self.square_width
-                pass
-            case 'b':
-                move_val += 3 * self.square_width
-                pass
-            case _:
-                raise ValueError("invalid uci move")
+        promotion_piece = move.lower()[4]
+        if promotion_piece == 'q':
+            pass
+        elif promotion_piece == 'n':
+            move_val += self.square_width
+        elif promotion_piece == 'r':
+            move_val += 2 * self.square_width
+            pass
+        elif promotion_piece == 'b':
+            move_val += 3 * self.square_width
+            pass
+        else:
+            raise ValueError("invalid uci move")
             
         pyautogui.moveTo(end_x, end_y + move_val, 0.1)
         pyautogui.leftClick()
