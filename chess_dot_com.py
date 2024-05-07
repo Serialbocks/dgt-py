@@ -22,7 +22,7 @@ class GameState(enum.Enum):
     WAIT_PLAYER_UPDATE_OPPONENT = 3
 
 class Game():
-    def __init__(self, port, url, fullscreen, starting_fen, use_board_state, analysis, use_game, debug=False):
+    def __init__(self, port, url, fullscreen, starting_fen, use_board_state, analysis, use_game, color, debug):
         self.port = port
         self.debug = debug
         self.url = url
@@ -32,6 +32,7 @@ class Game():
         self.use_game = use_game
         self.saved_game_filename = None
         self.analysis = analysis
+        self.color = color
         self.init_game()
 
     def __str__(self):
@@ -183,8 +184,11 @@ class Game():
                 print('Waiting for board to be reset...')
             return
         self.is_white = True
-        color_in = input("Enter color to begin (W/b): ")
-        if len(color_in) > 0 and color_in[0].lower() == 'b':
+        if self.color == None:
+            color_in = input("Enter color to begin (W/b): ")
+            if len(color_in) > 0 and color_in[0].lower() == 'b':
+                self.is_white = False
+        elif len(self.color) > 0 and self.color[0] == 'b':
             self.is_white = False
 
         pickle.dump(self.driver.get_cookies(), open(COOKIE_FILE, "wb"))
@@ -256,6 +260,7 @@ def default_argument_parser(for_name: str) -> argparse.ArgumentParser:
     parser.add_argument('--useBoardState', action=argparse.BooleanOptionalAction, help="Use board's current state as starting position")
     parser.add_argument('--useGame', type=str, help="Use saved game as starting position")
     parser.add_argument('--analysis', action=argparse.BooleanOptionalAction, help="Play in analysis mode")
+    parser.add_argument("--color", type=str, help="Color of the pieces. If not specified, will ask through stdio.")
     parser.add_argument('--debug', action=argparse.BooleanOptionalAction, help="Print debug text to console")
     return parser
 
@@ -270,7 +275,8 @@ def main():
     use_game = args.useGame
     analysis = args.analysis
     fullscreen = args.fullscreen
-    game = Game(port, url, fullscreen, fen, use_board_state, analysis, use_game, debug)
+    color = args.color
+    game = Game(port, url, fullscreen, fen, use_board_state, analysis, use_game, color, debug)
 
     try:
         while True:

@@ -1,6 +1,8 @@
 import sys, os, glob, subprocess, time
 import serial
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtCore
+
+from chess_dot_com import *
 
 class Gui:
     def __init__(self):
@@ -13,13 +15,20 @@ class Gui:
         serialPort.addItems(ports)
         serialPort.currentIndexChanged.connect(self.serial_index_changed)
 
-        self.window.connectButton.clicked.connect(self.connect_button_pressed)
+        self.window.connectBoard.clicked.connect(self.connect_button_pressed)
+
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.run)
+        self.timer.setInterval(1000)
 
         self.window.show()
         app.exec()
 
+    def run(self):
+        print('hello')
+
     def connect_button_pressed(self):
-        pass
+        self.timer.start()
 
     def serial_index_changed(self, i):
         print(self.window.serialPort.currentText())
