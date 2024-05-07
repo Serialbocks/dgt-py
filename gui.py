@@ -3,6 +3,9 @@ import serial
 from PyQt5 import QtWidgets, uic, QtCore
 
 from chess_dot_com import *
+from dgt_constants import *
+
+DEFAULT_URL = "https://www.chess.com/play/computer"
 
 class Gui:
     def __init__(self):
@@ -19,19 +22,33 @@ class Gui:
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.run)
-        self.timer.setInterval(1000)
+        self.timer.setInterval(33) # ~30fps
 
         self.window.show()
         app.exec()
 
     def run(self):
-        print('hello')
+        self.game.run()
 
     def connect_button_pressed(self):
+        port = self.window.serialPort.currentText()
+        url = DEFAULT_URL
+        is_white = self.window.white.isChecked()
+        fullscreen = self.window.fullscreen.isChecked()
+        fen = FULL_STARTING_FEN
+        use_board_state = self.window.boardState.isChecked()
+        analysis = self.window.analysis.isChecked()
+        use_game = None
+        color = 'black'
+        if is_white:
+            color = 'white'
+        fen = FULL_STARTING_FEN
+        debug = True # might as well always show the output in the console
+        
+        self.game = Game(port, url, fullscreen, fen, use_board_state, analysis, use_game, color, debug)
         self.timer.start()
 
     def serial_index_changed(self, i):
-        print(self.window.serialPort.currentText())
         if i >= 0:
             self.window.connectBoard.setEnabled(True)
         else:
