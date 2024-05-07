@@ -28,7 +28,13 @@ class Gui:
         app.exec()
 
     def run(self):
-        self.game.run()
+        try:
+            self.game.run()
+        except Exception:
+            tb = traceback.format_exc()
+            time.sleep(15)
+            print(tb)
+            raise Exception(tb)
 
     def connect_button_pressed(self):
         port = self.window.serialPort.currentText()
@@ -96,3 +102,4 @@ if __name__ == '__main__':
             sys.exit(130)
         except SystemExit:
             os._exit(130)
+        
