@@ -1,4 +1,4 @@
-import os, time, enum
+import os, time, enum, datetime
 from square import *
 import chess
 import pyautogui
@@ -20,35 +20,34 @@ def print_board(board):
     print(board)
 
 def piece_byte_to_ascii(piece_byte):
-    match piece_byte:
-        case DgtConstants.EMPTY:
-            return ''
-        case DgtConstants.WPAWN:
-            return 'P'
-        case DgtConstants.WROOK:
-            return 'R'
-        case DgtConstants.WKNIGHT:
-            return 'N'
-        case DgtConstants.WBISHOP:
-            return 'B'
-        case DgtConstants.WKING:
-            return 'K'
-        case DgtConstants.WQUEEN:
-            return 'Q'
-        case DgtConstants.BPAWN:
-            return 'p'
-        case DgtConstants.BROOK:
-            return 'r'
-        case DgtConstants.BKNIGHT:
-            return 'n'
-        case DgtConstants.BBISHOP:
-            return 'b'
-        case DgtConstants.BKING:
-            return 'k'
-        case DgtConstants.BQUEEN:
-            return 'q'
-        case _:
-            raise ValueError("Invalid piece detected")
+    if piece_byte == DgtConstants.EMPTY:
+        return ''
+    elif piece_byte == DgtConstants.WPAWN:
+        return 'P'
+    elif piece_byte == DgtConstants.WROOK:
+        return 'R'
+    elif piece_byte == DgtConstants.WKNIGHT:
+        return 'N'
+    elif piece_byte == DgtConstants.WBISHOP:
+        return 'B'
+    elif piece_byte == DgtConstants.WKING:
+        return 'K'
+    elif piece_byte == DgtConstants.WQUEEN:
+        return 'Q'
+    elif piece_byte == DgtConstants.BPAWN:
+        return 'p'
+    elif piece_byte == DgtConstants.BROOK:
+        return 'r'
+    elif piece_byte == DgtConstants.BKNIGHT:
+        return 'n'
+    elif piece_byte == DgtConstants.BBISHOP:
+        return 'b'
+    elif piece_byte == DgtConstants.BKING:
+        return 'k'
+    elif piece_byte == DgtConstants.BQUEEN:
+        return 'q'
+    else:
+        raise ValueError("Invalid piece detected")
 
 def dgt_message_to_fen(message):
     stripped_message = message[3:]
@@ -277,35 +276,34 @@ def get_ee_game(events, start_move_index):
             continue
 
         square = chess.square(7 - event.file, event.rank)
-        match(event.piece):
-            case Piece.EMPTY:
-                physical_state.remove_piece_at(square)
-            case Piece.WPAWN:
-                physical_state.set_piece_at(square, chess.Piece(chess.PAWN, chess.WHITE))
-            case Piece.WROOK:
-                physical_state.set_piece_at(square, chess.Piece(chess.ROOK, chess.WHITE))
-            case Piece.WKNIGHT:
-                physical_state.set_piece_at(square, chess.Piece(chess.KNIGHT, chess.WHITE))
-            case Piece.WBISHOP:
-                physical_state.set_piece_at(square, chess.Piece(chess.BISHOP, chess.WHITE))
-            case Piece.WKING:
-                physical_state.set_piece_at(square, chess.Piece(chess.KING, chess.WHITE))
-            case Piece.WQUEEN:
-                physical_state.set_piece_at(square, chess.Piece(chess.QUEEN, chess.WHITE))
-            case Piece.BPAWN:
-                physical_state.set_piece_at(square, chess.Piece(chess.PAWN, chess.BLACK))
-            case Piece.BROOK:
-                physical_state.set_piece_at(square, chess.Piece(chess.ROOK, chess.BLACK))
-            case Piece.BKNIGHT:
-                physical_state.set_piece_at(square, chess.Piece(chess.KNIGHT, chess.BLACK))
-            case Piece.BBISHOP:
-                physical_state.set_piece_at(square, chess.Piece(chess.BISHOP, chess.BLACK))
-            case Piece.BKING:
-                physical_state.set_piece_at(square, chess.Piece(chess.KING, chess.BLACK))
-            case Piece.BQUEEN:
-                physical_state.set_piece_at(square, chess.Piece(chess.QUEEN, chess.BLACK))
-            case _:
-                pass
+        if event.piece == Piece.EMPTY:
+            physical_state.remove_piece_at(square)
+        elif event.piece == Piece.WPAWN:
+            physical_state.set_piece_at(square, chess.Piece(chess.PAWN, chess.WHITE))
+        elif event.piece == Piece.WROOK:
+            physical_state.set_piece_at(square, chess.Piece(chess.ROOK, chess.WHITE))
+        elif event.piece == Piece.WKNIGHT:
+            physical_state.set_piece_at(square, chess.Piece(chess.KNIGHT, chess.WHITE))
+        elif event.piece == Piece.WBISHOP:
+            physical_state.set_piece_at(square, chess.Piece(chess.BISHOP, chess.WHITE))
+        elif event.piece == Piece.WKING:
+            physical_state.set_piece_at(square, chess.Piece(chess.KING, chess.WHITE))
+        elif event.piece == Piece.WQUEEN:
+            physical_state.set_piece_at(square, chess.Piece(chess.QUEEN, chess.WHITE))
+        elif event.piece == Piece.BPAWN:
+            physical_state.set_piece_at(square, chess.Piece(chess.PAWN, chess.BLACK))
+        elif event.piece == Piece.BROOK:
+            physical_state.set_piece_at(square, chess.Piece(chess.ROOK, chess.BLACK))
+        elif event.piece == Piece.BKNIGHT:
+            physical_state.set_piece_at(square, chess.Piece(chess.KNIGHT, chess.BLACK))
+        elif event.piece == Piece.BBISHOP:
+            physical_state.set_piece_at(square, chess.Piece(chess.BISHOP, chess.BLACK))
+        elif event.piece == Piece.BKING:
+            physical_state.set_piece_at(square, chess.Piece(chess.KING, chess.BLACK))
+        elif event.piece == Piece.BQUEEN:
+            physical_state.set_piece_at(square, chess.Piece(chess.QUEEN, chess.BLACK))
+        else:
+            pass
 
         physical_fen = fen_from_board(physical_state)
         if physical_fen in legal_moves:
@@ -360,19 +358,19 @@ def make_uci_move(driver, move, is_white):
 
     if(len(move) == 5):
         move_val = 0
-        match move.lower()[4]:
-            case 'q':
-                pass
-            case 'n':
-                move_val += square_width
-            case 'r':
-                move_val += 2 * square_width
-                pass
-            case 'b':
-                move_val += 3 * square_width
-                pass
-            case _:
-                raise ValueError("invalid uci move")
+        promotion_piece = move.lower()[4]
+        if promotion_piece == 'q':
+            pass
+        elif promotion_piece == 'n':
+            move_val += square_width
+        elif promotion_piece == 'r':
+            move_val += 2 * square_width
+            pass
+        elif promotion_piece == 'b':
+            move_val += 3 * square_width
+            pass
+        else:
+            raise ValueError("invalid uci move")
         ac = ac.move_by_offset(0, -move_val).click()
 
     ac.perform()

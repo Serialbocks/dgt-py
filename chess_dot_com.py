@@ -233,17 +233,16 @@ class Game():
             self.set_state(GameState.PLAYER_TURN)
 
     def run(self):
-        match self.state:
-            case GameState.PRE_GAME:
-                self.state_pre_game()
-            case GameState.PLAYER_TURN:
-                self.state_player_turn()
-            case GameState.OPPONENT_TURN:
-                self.state_opponent_turn()
-            case GameState.WAIT_PLAYER_UPDATE_OPPONENT:
-                self.state_wait_player_update_opponent()
-            case _:
-                raise ValueError('Game got into an invalid state: ' + str(self.state))
+        if self.state == GameState.PRE_GAME:
+            self.state_pre_game()
+        elif self.state == GameState.PLAYER_TURN:
+            self.state_player_turn()
+        elif self.state == GameState.OPPONENT_TURN:
+            self.state_opponent_turn()
+        elif self.state == GameState.WAIT_PLAYER_UPDATE_OPPONENT:
+            self.state_wait_player_update_opponent()
+        else:
+            raise ValueError('Game got into an invalid state: ' + str(self.state))
         self.state_iterations += 1
 
 game = None
