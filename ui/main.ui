@@ -94,6 +94,19 @@
       <string>Analysis</string>
      </property>
     </widget>
+    <widget class="QRadioButton" name="clock">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>100</y>
+       <width>151</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Clock</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
