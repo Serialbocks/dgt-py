@@ -29,7 +29,7 @@ class AutoClock():
         self.white_to_move = True
 
     def ms_to_hh_mm_ss(self, ms):
-        td_str = str(timedelta(milliseconds=ms))
+        td_str = str(timedelta(milliseconds=(ms+999)))
         result = ''
 
         td_split = td_str.split(":")
@@ -45,6 +45,8 @@ class AutoClock():
             result += minutes + ":"
         else:
             result += minutes[1] + ":"
+
+        result += seconds[0:2]
 
         return result
 
