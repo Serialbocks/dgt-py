@@ -4,8 +4,13 @@ from PyQt5 import QtWidgets, uic, QtCore
 
 from chess_dot_com import *
 from dgt_constants import *
+from auto_clock import *
 
 DEFAULT_URL = "https://www.chess.com/play/computer"
+
+PAGE_MAIN_MENU = 0
+PAGE_CLOCK_SETUP = 1
+PAGE_CLOCK = 2
 
 class Gui:
     def __init__(self):
@@ -13,22 +18,51 @@ class Gui:
 
         self.window = uic.loadUi("ui/main.ui")
 
+        # init UI
         ports = self.serial_ports()
         serialPort = self.window.serialPort
         serialPort.addItems(ports)
         serialPort.currentIndexChanged.connect(self.serial_index_changed)
-
         self.window.connectBoard.clicked.connect(self.connect_button_pressed)
+        self.window.startClock.clicked.connect(self.start_clock_pressed)
 
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.run)
-        self.timer.setInterval(33) # ~30fps
+        self.chess_dot_com_timer = QtCore.QTimer()
+        self.chess_dot_com_timer.timeout.connect(self.run_chess_dot_com)
+        self.chess_dot_com_timer.setInterval(33) # ~30fps
+
+        self.clock_timer = QtCore.QTimer()
+        self.clock_timer.timeout.connect(self.run_clock)
+        self.clock_timer.setInterval(33) # ~30fps
+
+        self.board_timer = QtCore.QTimer()
+        self.board_timer.timeout.connect(self.run_clock)
+        self.board_timer.setInterval(33) # ~30fps
 
         self.window.show()
         app.exec()
 
-    def run(self):
+    def run_chess_dot_com(self):
         self.game.run()
+
+    def run_clock(self):
+        result = self.clock.run_clock()
+        print(result)
+
+    def run_board(self):
+        self.clock.run_board()
+
+    def start_clock_pressed(self):
+        minutes = self.window.minutes.value()
+        seconds = self.window.seconds.value()
+        if minutes == 0 and seconds == 0:
+            return
+        start_time_ms = (minutes * 60000) + (seconds * 1000)
+        increment_ms = (self.window.increment.value() * 1000)
+        port = self.window.serialPort.currentText()
+        self.clock = AutoClock(port, start_time_ms, increment_ms)
+        self.clock_timer.start()
+        self.board_timer.start()
+        self.window.page.setCurrentIndex(PAGE_CLOCK)
 
     def connect_button_pressed(self):
         port = self.window.serialPort.currentText()
@@ -38,15 +72,20 @@ class Gui:
         fen = FULL_STARTING_FEN
         use_board_state = self.window.boardState.isChecked()
         analysis = self.window.analysis.isChecked()
+        clock = self.window.clock.isChecked()
         use_game = None
         color = 'black'
         if is_white:
             color = 'white'
         fen = FULL_STARTING_FEN
         debug = True # might as well always show the output in the console
+
+        if(clock):
+            self.window.page.setCurrentIndex(PAGE_CLOCK_SETUP)
+            return
         
         self.game = Game(port, url, fullscreen, fen, use_board_state, analysis, use_game, color, debug)
-        self.timer.start()
+        self.chess_dot_com_timer.start()
 
     def serial_index_changed(self, i):
         if i >= 0:

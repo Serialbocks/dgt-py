@@ -14,234 +14,339 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QComboBox" name="serialPort">
+   <widget class="QTabWidget" name="page">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>70</y>
-      <width>311</width>
-      <height>51</height>
+      <x>-10</x>
+      <y>-30</y>
+      <width>820</width>
+      <height>481</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <pointsize>18</pointsize>
-     </font>
-    </property>
-    <property name="currentText">
-     <string/>
-    </property>
-    <property name="placeholderText">
-     <string>Port</string>
-    </property>
-   </widget>
-   <widget class="QGroupBox" name="gameType">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>30</y>
-      <width>411</width>
-      <height>211</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>18</pointsize>
-     </font>
-    </property>
-    <property name="title">
-     <string>Game Type</string>
-    </property>
-    <widget class="QRadioButton" name="computer">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>40</y>
-       <width>161</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Computer</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
+    <widget class="QWidget" name="mainMenu">
+     <attribute name="title">
+      <string>Tab 1</string>
+     </attribute>
+     <widget class="QGroupBox" name="color">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>120</y>
+        <width>221</width>
+        <height>81</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>18</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>Color</string>
+      </property>
+      <widget class="QRadioButton" name="black">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>30</y>
+         <width>101</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>18</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Black</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="white">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>101</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>18</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>White</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>10</y>
+        <width>131</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>18</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Port</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="gameType">
+      <property name="geometry">
+       <rect>
+        <x>380</x>
+        <y>20</y>
+        <width>411</width>
+        <height>211</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>18</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>Game Type</string>
+      </property>
+      <widget class="QRadioButton" name="computer">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>40</y>
+         <width>161</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Computer</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="boardState">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>60</y>
+         <width>181</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Board State</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="analysis">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>100</y>
+         <width>151</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Analysis</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="clock">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>100</y>
+         <width>151</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Clock</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QComboBox" name="serialPort">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>60</y>
+        <width>311</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>18</pointsize>
+       </font>
+      </property>
+      <property name="currentText">
+       <string/>
+      </property>
+      <property name="placeholderText">
+       <string>Port</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="fullscreen">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>210</y>
+        <width>221</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>18</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Start in Fullscreen</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="connectBoard">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>420</x>
+        <y>250</y>
+        <width>311</width>
+        <height>151</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>18</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Start Game</string>
+      </property>
+      <property name="checkable">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+     </widget>
     </widget>
-    <widget class="QRadioButton" name="boardState">
-     <property name="geometry">
-      <rect>
-       <x>180</x>
-       <y>60</y>
-       <width>181</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Board State</string>
-     </property>
+    <widget class="QWidget" name="clockSetup">
+     <attribute name="title">
+      <string>Page</string>
+     </attribute>
     </widget>
-    <widget class="QRadioButton" name="analysis">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>100</y>
-       <width>151</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Analysis</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="clock">
-     <property name="geometry">
-      <rect>
-       <x>180</x>
-       <y>100</y>
-       <width>151</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Clock</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>131</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>18</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Port</string>
-    </property>
-   </widget>
-   <widget class="QGroupBox" name="color">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>130</y>
-      <width>221</width>
-      <height>81</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>18</pointsize>
-     </font>
-    </property>
-    <property name="title">
-     <string>Color</string>
-    </property>
-    <widget class="QRadioButton" name="black">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>30</y>
-       <width>101</width>
-       <height>41</height>
-      </rect>
-     </property>
+    <widget class="QWidget" name="Clock">
      <property name="font">
       <font>
        <pointsize>18</pointsize>
       </font>
      </property>
-     <property name="text">
-      <string>Black</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>16</width>
-       <height>16</height>
-      </size>
-     </property>
+     <attribute name="title">
+      <string>Tab 2</string>
+     </attribute>
+     <widget class="Line" name="line">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>10</y>
+        <width>20</width>
+        <height>441</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>175</x>
+        <y>20</y>
+        <width>61</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Black</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>30</y>
+        <width>61</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>White</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="blackTimer">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>120</y>
+        <width>371</width>
+        <height>201</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>69</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>10:00:00</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="whiteTimer">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>120</y>
+        <width>371</width>
+        <height>201</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>70</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>10:00:00</string>
+      </property>
+     </widget>
     </widget>
-    <widget class="QRadioButton" name="white">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>30</y>
-       <width>101</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>18</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>White</string>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>16</width>
-       <height>16</height>
-      </size>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QPushButton" name="connectBoard">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>410</x>
-      <y>260</y>
-      <width>311</width>
-      <height>151</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>18</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Start Game</string>
-    </property>
-    <property name="checkable">
-     <bool>false</bool>
-    </property>
-    <property name="flat">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="fullscreen">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>220</y>
-      <width>221</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>18</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Start in Fullscreen</string>
-    </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
