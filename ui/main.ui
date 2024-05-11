@@ -463,8 +463,8 @@
      <widget class="QLabel" name="blackTimer">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>120</y>
+        <x>120</x>
+        <y>110</y>
         <width>371</width>
         <height>201</height>
        </rect>
@@ -475,14 +475,14 @@
        </font>
       </property>
       <property name="text">
-       <string>10:00:00</string>
+       <string>0:00</string>
       </property>
      </widget>
      <widget class="QLabel" name="whiteTimer">
       <property name="geometry">
        <rect>
-        <x>430</x>
-        <y>120</y>
+        <x>530</x>
+        <y>110</y>
         <width>371</width>
         <height>201</height>
        </rect>
@@ -493,7 +493,7 @@
        </font>
       </property>
       <property name="text">
-       <string>10:00:00</string>
+       <string>0:00</string>
       </property>
      </widget>
     </widget>

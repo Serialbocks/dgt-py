@@ -12,6 +12,10 @@ PAGE_MAIN_MENU = 0
 PAGE_CLOCK_SETUP = 1
 PAGE_CLOCK = 2
 
+BLACK_TIME_DEFAULT_X = 120
+WHITE_TIME_DEFAULT_X = 530
+DEFAULT_Y = 110
+
 class Gui:
     def __init__(self):
         app = QtWidgets.QApplication(sys.argv)
@@ -46,8 +50,30 @@ class Gui:
 
     def run_clock(self):
         result = self.clock.run_clock()
-        self.window.whiteTimer.setText(result['white'])
-        self.window.blackTimer.setText(result['black'])
+        white = result['white']
+        black = result['black']
+        white_x = WHITE_TIME_DEFAULT_X
+        black_x = BLACK_TIME_DEFAULT_X
+
+        if len(white) >= 8:
+            white_x -= 100
+        elif len(white) >= 7:
+            white_x -= 70
+        elif len(white) >= 5:
+            white_x -= 30
+
+        if len(black) >= 8:
+            black_x -= 100
+        elif len(black) >= 7:
+            black_x -= 70
+        elif len(black) >= 5:
+            black_x -= 30
+
+        self.window.whiteTimer.move(white_x, DEFAULT_Y)
+        self.window.blackTimer.move(black_x, DEFAULT_Y)
+
+        self.window.whiteTimer.setText(white)
+        self.window.blackTimer.setText(black)
 
     def run_board(self):
         self.clock.run_board()
@@ -63,6 +89,7 @@ class Gui:
         self.clock = AutoClock(port, start_time_ms, increment_ms)
         self.clock_timer.start()
         self.board_timer.start()
+        self.run_clock() # set labels before showing page
         self.window.page.setCurrentIndex(PAGE_CLOCK)
 
     def connect_button_pressed(self):
