@@ -46,7 +46,11 @@ class AutoClock():
         else:
             result += minutes[1] + ":"
 
+        has_minutes = minutes[0] != '0' or minutes[1] != '0'
+
         result += seconds[0:2]
+        if not has_hours and not has_minutes:
+            result += seconds[2:4]
 
         return result
 
