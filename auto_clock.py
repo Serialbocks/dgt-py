@@ -82,7 +82,9 @@ class AutoClock():
 
         return {
             "white": self.ms_to_hh_mm_ss(white_time),
-            "black": self.ms_to_hh_mm_ss(black_time)
+            "black": self.ms_to_hh_mm_ss(black_time),
+            "running": self.running,
+            "white_to_move": self.white_to_move
         }
 
     def run_board(self):

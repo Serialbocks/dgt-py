@@ -15,6 +15,8 @@ PAGE_CLOCK = 2
 BLACK_TIME_DEFAULT_X = 120
 WHITE_TIME_DEFAULT_X = 530
 DEFAULT_Y = 110
+PLAYER_TURN_STYLESHEET = ""
+OPPONENT_TURN_STYLESHEET = "color: rgb(159, 159, 159)"
 
 class Gui:
     def __init__(self):
@@ -68,6 +70,13 @@ class Gui:
             black_x -= 70
         elif len(black) >= 5:
             black_x -= 30
+
+        if(result['white_to_move']):
+            self.window.whiteTimer.setStyleSheet(PLAYER_TURN_STYLESHEET)
+            self.window.blackTimer.setStyleSheet(OPPONENT_TURN_STYLESHEET)
+        else:
+            self.window.blackTimer.setStyleSheet(PLAYER_TURN_STYLESHEET)
+            self.window.whiteTimer.setStyleSheet(OPPONENT_TURN_STYLESHEET)
 
         self.window.whiteTimer.move(white_x, DEFAULT_Y)
         self.window.blackTimer.move(black_x, DEFAULT_Y)
