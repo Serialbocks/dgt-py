@@ -1,6 +1,7 @@
 import sys, os, glob, subprocess, time
 import serial
 import chess
+from datetime import timedelta
 
 from utils import *
 from dgt_constants import *
@@ -25,22 +26,48 @@ class AutoClock():
         self.legal_moves = legal_fens(self.board)
         self.white_to_move = True
 
-    def run_clock(self):
-        if self.board_fen in self.legal_moves:
-            current_time = current_milli_time()
+    def ms_to_hh_mm_ss(self, ms):
+        td_str = str(timedelta(milliseconds=ms))
+        result = ''
 
+        td_split = td_str.split(":")
+        hours = td_split[0]
+        minutes = td_split[1]
+        seconds = td_split[2]
+
+        has_hours = len(hours) > 1 or hours[0] != '0'
+        if has_hours:
+            result += hours + ":"
+        
+        if(has_hours or minutes[0] != '0'):
+            result += minutes + ":"
+        else:
+            result += minutes[1] + ":"
+
+        result += seconds[0:2]
+
+        return result
+
+
+    def run_clock(self):
+        current_time = current_milli_time()
+        if self.board_fen in self.legal_moves:
             if not self.running:
+                self.white_start_time = current_time
                 self.black_start_time = current_time
 
             move = self.legal_moves[self.board_fen]
             self.board.push_uci(move)
             self.legal_moves = legal_fens(self.board)
-            self.white_to_move = ~self.white_to_move
+            self.white_to_move = not self.white_to_move
             if self.white_to_move:
-                self.black_time -= (self.current_time - self.black_start_time)
+                self.black_time -= (current_time - self.black_start_time)
+                self.black_time += self.increment_ms
                 self.white_start_time = current_time
             else:
-                self.white_time -= (self.current_time - self.white_start_time)
+                self.white_time -= (current_time - self.white_start_time)
+                if self.running:
+                    self.white_time += self.increment_ms
                 self.black_start_time = current_time
 
             self.running = True
@@ -48,13 +75,18 @@ class AutoClock():
         white_time = self.white_time
         black_time = self.black_time
         if self.running:
-            pass
+            if self.white_to_move:
+                white_time -= (current_time - self.white_start_time)
+            else:
+                black_time -= (current_time - self.black_start_time)
 
         return {
-            "white": "",
-            "black": ""
+            "white": self.ms_to_hh_mm_ss(white_time),
+            "black": self.ms_to_hh_mm_ss(black_time)
         }
 
     def run_board(self):
-        self.board_fen = dgt_message_to_fen(get_dgt_board_state(self.serial))
+        s = get_dgt_board_state(self.serial)
+        fen = dgt_message_to_fen(s)
+        self.board_fen = fen
         

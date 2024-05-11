@@ -35,7 +35,7 @@ class Gui:
         self.clock_timer.setInterval(33) # ~30fps
 
         self.board_timer = QtCore.QTimer()
-        self.board_timer.timeout.connect(self.run_clock)
+        self.board_timer.timeout.connect(self.run_board)
         self.board_timer.setInterval(33) # ~30fps
 
         self.window.show()
@@ -46,7 +46,8 @@ class Gui:
 
     def run_clock(self):
         result = self.clock.run_clock()
-        print(result)
+        self.window.whiteTimer.setText(result['white'])
+        self.window.blackTimer.setText(result['black'])
 
     def run_board(self):
         self.clock.run_board()
