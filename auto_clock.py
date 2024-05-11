@@ -16,6 +16,8 @@ class AutoClock():
         self.black_time = start_time_ms
         self.white_start_time = None
         self.black_start_time = None
+        self.white_time_expired = False
+        self.black_time_expired = False
         self.increment_ms = increment_ms
         self.board = chess.Board()
         self.running = False
@@ -74,17 +76,31 @@ class AutoClock():
 
         white_time = self.white_time
         black_time = self.black_time
+
         if self.running:
             if self.white_to_move:
                 white_time -= (current_time - self.white_start_time)
             else:
                 black_time -= (current_time - self.black_start_time)
 
+        if(white_time <= 0):
+            white_time = 0
+            self.white_time = 0
+            self.running = False
+            self.white_time_expired = True
+        if(black_time <= 0):
+            black_time = 0
+            self.black_time = 0
+            self.running = False
+            self.black_time_expired = True
+
         return {
             "white": self.ms_to_hh_mm_ss(white_time),
             "black": self.ms_to_hh_mm_ss(black_time),
             "running": self.running,
-            "white_to_move": self.white_to_move
+            "white_to_move": self.white_to_move,
+            "white_time_expired": self.white_time_expired,
+            "black_time_expired": self.black_time_expired
         }
 
     def run_board(self):

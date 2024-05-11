@@ -17,6 +17,7 @@ WHITE_TIME_DEFAULT_X = 530
 DEFAULT_Y = 110
 PLAYER_TURN_STYLESHEET = ""
 OPPONENT_TURN_STYLESHEET = "color: rgb(159, 159, 159)"
+TIME_EXPIRED_STYLESHEET = "color: rgb(255, 0, 0)"
 
 class Gui:
     def __init__(self):
@@ -75,7 +76,15 @@ class Gui:
         self.window.whiteTimer.move(white_x, DEFAULT_Y)
         self.window.blackTimer.move(black_x, DEFAULT_Y)
 
-        if(result['white_to_move']):
+        if(result['white_time_expired']):
+            self.window.whiteTimer.setStyleSheet(TIME_EXPIRED_STYLESHEET)
+            self.window.blackTimer.setStyleSheet(PLAYER_TURN_STYLESHEET)
+            self.window.startPauseTimer.setEnabled(False)
+        elif(result['black_time_expired']):
+            self.window.blackTimer.setStyleSheet(TIME_EXPIRED_STYLESHEET)
+            self.window.whiteTimer.setStyleSheet(PLAYER_TURN_STYLESHEET)
+            self.window.startPauseTimer.setEnabled(False)
+        elif(result['white_to_move']):
             self.window.whiteTimer.setStyleSheet(PLAYER_TURN_STYLESHEET)
             self.window.blackTimer.setStyleSheet(OPPONENT_TURN_STYLESHEET)
         else:
