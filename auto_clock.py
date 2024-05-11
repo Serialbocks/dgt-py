@@ -91,4 +91,17 @@ class AutoClock():
         s = get_dgt_board_state(self.serial)
         fen = dgt_message_to_fen(s)
         self.board_fen = fen
+
+    def start_pause_timer(self):
+        current_time = current_milli_time()
+        if self.running:
+            if self.white_to_move:
+                self.white_time -= (current_time - self.white_start_time)
+            else:
+                self.black_time -= (current_time - self.black_start_time)
+        else:
+            self.white_start_time = current_time
+            self.black_start_time = current_time
+
+        self.running = not self.running
         

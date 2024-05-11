@@ -31,6 +31,7 @@ class Gui:
         serialPort.currentIndexChanged.connect(self.serial_index_changed)
         self.window.connectBoard.clicked.connect(self.connect_button_pressed)
         self.window.startClock.clicked.connect(self.start_clock_pressed)
+        self.window.startPauseTimer.clicked.connect(self.start_pause_timer)
 
         self.chess_dot_com_timer = QtCore.QTimer()
         self.chess_dot_com_timer.timeout.connect(self.run_chess_dot_com)
@@ -71,6 +72,9 @@ class Gui:
         elif len(black) >= 5:
             black_x -= 30
 
+        self.window.whiteTimer.move(white_x, DEFAULT_Y)
+        self.window.blackTimer.move(black_x, DEFAULT_Y)
+
         if(result['white_to_move']):
             self.window.whiteTimer.setStyleSheet(PLAYER_TURN_STYLESHEET)
             self.window.blackTimer.setStyleSheet(OPPONENT_TURN_STYLESHEET)
@@ -78,14 +82,19 @@ class Gui:
             self.window.blackTimer.setStyleSheet(PLAYER_TURN_STYLESHEET)
             self.window.whiteTimer.setStyleSheet(OPPONENT_TURN_STYLESHEET)
 
-        self.window.whiteTimer.move(white_x, DEFAULT_Y)
-        self.window.blackTimer.move(black_x, DEFAULT_Y)
+        if(result['running']):
+            self.window.startPauseTimer.setText('Pause')
+        else:
+            self.window.startPauseTimer.setText('Start')
 
         self.window.whiteTimer.setText(white)
         self.window.blackTimer.setText(black)
 
     def run_board(self):
         self.clock.run_board()
+
+    def start_pause_timer(self):
+        self.clock.start_pause_timer()
 
     def start_clock_pressed(self):
         minutes = self.window.minutes.value()
