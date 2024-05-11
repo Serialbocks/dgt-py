@@ -40,7 +40,7 @@ class Gui:
 
         self.clock_timer = QtCore.QTimer()
         self.clock_timer.timeout.connect(self.run_clock)
-        self.clock_timer.setInterval(1)
+        self.clock_timer.setInterval(33) # ~30fps
 
         self.board_timer = QtCore.QTimer()
         self.board_timer.timeout.connect(self.run_board)
