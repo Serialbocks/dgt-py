@@ -132,7 +132,12 @@ def get_piece_on_browser_square(driver, file, rank):
     selector = '.piece.square-' + file + rank
     try:
         elem = driver.find_element(By.CSS_SELECTOR, selector)
-        pieceStr = elem.get_attribute('class')[6:8]
+        classSplit = elem.get_attribute('class').split(' ')
+        pieceStr = ''
+        for item in classSplit:
+            if len(item) == 2 and (item[0] == 'w' or item[0] == 'b'):
+                pieceStr = item
+                break
         if(pieceStr[0] == 'w'):
             return pieceStr[1].upper()
         else:
