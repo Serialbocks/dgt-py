@@ -238,6 +238,7 @@ def get_ee_events(ser):
     in_message = receive_board_message(ser)
     while len(in_message) > 0:
         message += in_message
+        time.sleep(3)
         in_message = receive_board_message(ser)
 
     events = []
