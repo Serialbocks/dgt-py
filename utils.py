@@ -121,6 +121,7 @@ def receive_board_message(ser):
         c = ser.read(1)
         s += c
         bytes_read += 1
+        time.sleep(0.05)
     return s
 
 def get_dgt_board_state(ser):
@@ -237,32 +238,29 @@ def get_ee_events(ser):
 
     events = []
     i = 0
-    while len(message) > 0:
-        while i < len(message):
-            value = message[i]
-            if (0x6a <= value <= 0x6f) or (0x7a <= value <= 0x7f) or value == 0x00:
-                simple_event = SimpleEvent(value)
-                events.append(simple_event)
+    while i < len(message):
+        value = message[i]
+        if (0x6a <= value <= 0x6f) or (0x7a <= value <= 0x7f) or value == 0x00:
+            simple_event = SimpleEvent(value)
+            events.append(simple_event)
 
-                i += 1
-            elif 0x40 <= value <= 0x5f:
-                if i + 1 >= len(message):
-                    break
+            i += 1
+        elif 0x40 <= value <= 0x5f:
+            if i + 1 >= len(message):
+                break
 
-                field_event = FieldEvent(value & 0x0f, message[i+1])
-                events.append(field_event)
+            field_event = FieldEvent(value & 0x0f, message[i+1])
+            events.append(field_event)
 
-                i += 2
-            elif (0x60 <= value <= 0x69) or (0x70 <= value <= 0x79):
-                if i + 2 >= len(message):
-                    break
-                clock_event = ClockEvent((value & 0x10) == 0x10, value & 0x0f, message[i+1], message[i+2])
-                events.append(clock_event)
-                i += 2
-            else:
-                i += 1
-
-        message = receive_board_message(ser)
+            i += 2
+        elif (0x60 <= value <= 0x69) or (0x70 <= value <= 0x79):
+            if i + 2 >= len(message):
+                break
+            clock_event = ClockEvent((value & 0x10) == 0x10, value & 0x0f, message[i+1], message[i+2])
+            events.append(clock_event)
+            i += 2
+        else:
+            i += 1
     
     return events
 
