@@ -232,7 +232,7 @@ class ClockEvent:
 
 def get_ee_events(ser):
     request_board_ee_moves(ser)
-    time.sleep(3)
+    time.sleep(6)
     message = receive_board_message(ser)
 
     events = []
