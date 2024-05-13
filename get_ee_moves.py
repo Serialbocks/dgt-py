@@ -32,10 +32,8 @@ def save_games(events):
     print('saved ' + str(game_index) + ' games to ' + folder)
 
 def print_events(events):
-    i = 0
     for event in events:
-        i += 1
-        print(str(event) + ' ' + str(i))
+        print(event)
 
 def default_argument_parser(for_name: str) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(for_name, description="Test pulling games off board EEPROM")

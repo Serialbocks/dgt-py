@@ -118,10 +118,9 @@ def receive_board_message(ser):
     s = b''
     bytes_read = 0
     while(ser.in_waiting > 0):
-        waiting = ser.in_waiting
-        c = ser.read(waiting)
+        c = ser.read(1)
         s += c
-        bytes_read += waiting
+        bytes_read += 1
     return s
 
 def get_dgt_board_state(ser):
@@ -263,7 +262,6 @@ def get_ee_events(ser):
             else:
                 i += 1
 
-        time.sleep(2)
         message = receive_board_message(ser)
     
     return events
