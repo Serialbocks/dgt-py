@@ -121,6 +121,7 @@ def receive_board_message(ser):
         c = ser.read(1)
         s += c
         bytes_read += 1
+        time.sleep(0.05)
     return s
 
 def get_dgt_board_state(ser):
@@ -232,7 +233,7 @@ class ClockEvent:
 
 def get_ee_events(ser):
     request_board_ee_moves(ser)
-    time.sleep(6)
+    time.sleep(3)
     message = receive_board_message(ser)
 
     events = []
