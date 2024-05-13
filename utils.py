@@ -257,7 +257,7 @@ def get_ee_events(ser):
                 break
             clock_event = ClockEvent((value & 0x10) == 0x10, value & 0x0f, message[i+1], message[i+2])
             events.append(clock_event)
-
+            i += 2
         else:
             i += 1
     

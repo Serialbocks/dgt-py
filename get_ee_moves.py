@@ -13,14 +13,15 @@ def save_game(game, folder, game_index):
     while game.fen() != FULL_STARTING_FEN:
         moves.append(game.pop())
 
+    moves.reverse()
     with open(filename, 'w') as file:
+        file.write(time.strftime("%Y-%m-%d_%H.%M.%S\n"))
         for move in moves:
             file.write(move.uci() + '\n')
-        file.write(game_fen)
 
 def save_games(events):
     print('saving games...')
-    folder = time.strftime("logs/%Y-%m-%d_%H.%M.%S/")
+    folder = time.strftime("saved_games/%Y-%m-%d_%H.%M.%S/")
     os.makedirs(folder)
 
     # wait for first starting position message

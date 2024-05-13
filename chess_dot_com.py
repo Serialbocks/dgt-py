@@ -100,7 +100,7 @@ class Game():
         game = chess.Board()
         with open(self.use_game) as file:
             file.readline()
-            while move := file.readline():
+            while move := file.readline().strip():
                 game.push_uci(move)
                 if len(moves) > 0:
                     moves += ' '

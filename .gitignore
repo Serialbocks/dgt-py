@@ -4,3 +4,4 @@ cookies.pkl
 logs/*.log
 logs/*/*.game
 saved_games/*.game
+saved_games/*/*.game
