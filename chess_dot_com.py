@@ -20,6 +20,8 @@ class GameState(enum.Enum):
     PLAYER_TURN = 1
     OPPONENT_TURN = 2
     WAIT_PLAYER_UPDATE_OPPONENT = 3
+    INPUT_COLOR = 4
+    DETECT_COLOR = 5
 
 class Game():
     def __init__(self, port, url, fullscreen, starting_fen, use_board_state, analysis, use_game, color, debug):
@@ -186,15 +188,39 @@ class Game():
                 self.board_reset_msg_sent = True
                 print('Waiting for board to be reset...')
             return
-        self.is_white = True
-        if self.color == None:
-            color_in = input("Enter color to begin (W/b): ")
-            if len(color_in) > 0 and color_in[0].lower() == 'b':
-                self.is_white = False
-        elif len(self.color) > 0 and self.color[0] == 'b':
+        
+        if self.color == 'detect':
+            self.set_state(GameState.DETECT_COLOR)
+            return
+        elif self.color == 'white':
+            self.is_white = True
+        elif self.color == 'black':
             self.is_white = False
+        else:
+            self.set_state(GameState.INPUT_COLOR)
+            return
 
-        # pickle.dump(self.driver.get_cookies(), open(COOKIE_FILE, "wb"))
+        if is_white_to_move(self.board) == self.is_white:
+            self.set_state(GameState.PLAYER_TURN)
+        else:
+            self.set_state(GameState.OPPONENT_TURN)
+
+    def state_detect_color(self):
+        s = get_dgt_board_state(self.serial)
+        dgt_fen = dgt_message_to_fen(s)
+        if dgt_fen in self.legal_moves:
+            self.is_white = True
+            self.set_state(GameState.PLAYER_TURN)
+            return
+        browser_fen = get_fen_from_browser(self.driver)
+        if browser_fen in self.legal_moves:
+            self.is_white = False
+            self.set_state(GameState.OPPONENT_TURN)
+
+    def state_input_color(self):
+        color_in = input("Enter color to begin (W/b): ")
+        if len(color_in) > 0 and color_in[0].lower() == 'b':
+            self.is_white = False
 
         if is_white_to_move(self.board) == self.is_white:
             self.set_state(GameState.PLAYER_TURN)
@@ -248,6 +274,10 @@ class Game():
             self.state_opponent_turn()
         elif self.state == GameState.WAIT_PLAYER_UPDATE_OPPONENT:
             self.state_wait_player_update_opponent()
+        elif self.state == GameState.INPUT_COLOR:
+            self.state_input_color()
+        elif self.state == GameState.DETECT_COLOR:
+            self.state_detect_color()
         else:
             raise ValueError('Game got into an invalid state: ' + str(self.state))
         self.state_iterations += 1

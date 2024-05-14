@@ -32,7 +32,7 @@
        <rect>
         <x>30</x>
         <y>120</y>
-        <width>221</width>
+        <width>331</width>
         <height>81</height>
        </rect>
       </property>
@@ -47,7 +47,7 @@
       <widget class="QRadioButton" name="black">
        <property name="geometry">
         <rect>
-         <x>110</x>
+         <x>220</x>
          <y>30</y>
          <width>101</width>
          <height>41</height>
@@ -71,7 +71,7 @@
       <widget class="QRadioButton" name="white">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>120</x>
          <y>30</y>
          <width>101</width>
          <height>41</height>
@@ -90,6 +90,22 @@
          <width>16</width>
          <height>16</height>
         </size>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="detect">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>40</y>
+         <width>111</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Detect</string>
        </property>
        <property name="checked">
         <bool>true</bool>

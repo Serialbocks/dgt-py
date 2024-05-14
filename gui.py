@@ -122,6 +122,7 @@ class Gui:
     def connect_button_pressed(self):
         port = self.window.serialPort.currentText()
         url = DEFAULT_URL
+        detect = self.window.detect.isChecked()
         is_white = self.window.white.isChecked()
         fullscreen = self.window.fullscreen.isChecked()
         fen = FULL_STARTING_FEN
@@ -130,7 +131,9 @@ class Gui:
         clock = self.window.clock.isChecked()
         use_game = None
         color = 'black'
-        if is_white:
+        if detect:
+            color = 'detect'
+        elif is_white:
             color = 'white'
         fen = FULL_STARTING_FEN
         debug = True # might as well always show the output in the console
